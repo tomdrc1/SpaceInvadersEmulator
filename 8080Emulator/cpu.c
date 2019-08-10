@@ -50,7 +50,6 @@ byte emulate8080Op(State8080* state)
 			break;
 		case 0x05:
 			{
-				//FIX
 				state->cc.ac = (((state->b & 0x0F) - (0x01 & 0x0F)) < 0);
 				byte res = state->b - 1;
 
