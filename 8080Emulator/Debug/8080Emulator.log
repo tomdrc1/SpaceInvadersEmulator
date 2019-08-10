@@ -1,0 +1,3 @@
+﻿  cpu.c
+C:\Users\tomdr\Desktop\Code\C++\8080Emulator\8080Emulator\cpu.c(38,10): warning C4013:  'printf' undefined; assuming extern returning int
+  8080Emulator.vcxproj -> C:\Users\tomdr\Desktop\Code\C++\8080Emulator\Debug\8080Emulator.exe
