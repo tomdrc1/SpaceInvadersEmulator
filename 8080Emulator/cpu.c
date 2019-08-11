@@ -457,22 +457,52 @@ byte emulate8080Op(State8080* state)
 			state->cc.cy = 0x01;
 			break;
 		case 0x38:
-			printf("Not implemented!\n");
 			break;
 		case 0x39:
-			printf("Not implemented!\n");
+			{
+				unsigned short hl = (state->h << 8) | state->l;
+
+				unsigned int res = hl + state->sp;
+
+				state->h = (res & 0x0000FF00) >> 8;
+				state->l = res & 0x000000FF;
+
+				state->cc.cy = ((res & 0xFFFF0000) != 0);
+			}
 			break;
 		case 0x3A:
-			printf("Not implemented!\n");
+			{
+				unsigned short adr = (instruction[2] << 8) | instruction[1];
+				state->a = state->memory[adr];
+				state->pc += 2;
+			}
 			break;
 		case 0x3B:
-			printf("Not implemented!\n");
+			state->sp--;
 			break;
 		case 0x3C:
-			printf("Not implemented!\n");
+			{
+				state->cc.ac = (((state->a & 0x0F) + (0x01 & 0x0F)) & 0x10) == 0x10;
+				byte res = state->a + 1;
+
+				state->cc.z = (0 == res);
+				state->cc.s = (0x80 == (res & 0x80));
+				state->cc.p = pairtyCheck(res, 8);
+
+				state->a = res;
+			}
 			break;
 		case 0x3D:
-			printf("Not implemented!\n");
+			{
+				state->cc.ac = (((state->a & 0x0F) - (0x01 & 0x0F)) < 0);
+				byte res = state->a - 1;
+
+				state->cc.z = (0 == res);
+				state->cc.s = (0x80 == (res & 0x80));
+				state->cc.p = pairtyCheck(res, 8);
+
+				state->a = res;
+			}
 			break;
 		case 0x3E:
 			state->a = instruction[1];
