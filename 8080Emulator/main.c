@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "cpu.h"
 
 #pragma warning(disable:4996)
@@ -14,6 +15,8 @@
   (byte & 0x04 ? '1' : '0'), \
   (byte & 0x02 ? '1' : '0'), \
   (byte & 0x01 ? '1' : '0')  
+
+#define MEMORY_SIZE 0x10000 //16K
 
 void setupState(State8080* state);
 void readFileToMemory(State8080* state, char* filename, unsigned short offset);
@@ -59,7 +62,9 @@ void setupState(State8080* state)
 	state->sp = 0xffff;
 	state->pc = 0;
 
-	state->memory = (byte*)malloc(0x10000);
+	state->memory = (byte*)malloc(MEMORY_SIZE);
+	memset(state->memory, NULL, MEMORY_SIZE);
+
 	state->cc.z = 1;
 	state->cc.s = 1;
 	state->cc.p = 1;
