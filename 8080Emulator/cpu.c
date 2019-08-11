@@ -402,7 +402,9 @@ byte emulate8080Op(State8080* state)
 		case 0x30:
 			break;
 		case 0x31:
-			printf("Not implemented!\n");
+			state->sp = ((state->sp & 0x0000) | (instruction[2] << 8));
+			state->sp = state->sp | instruction[1];
+			state->pc += 2;
 			break;
 		case 0x32:
 			printf("Not implemented!\n");
