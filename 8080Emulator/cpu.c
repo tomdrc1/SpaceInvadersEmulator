@@ -719,28 +719,31 @@ byte emulate8080Op(State8080* state)
 			}
 			break;
 		case 0x78:
-			printf("Not implemented!\n");
+			state->a = state->b;
 			break;
 		case 0x79:
-			printf("Not implemented!\n");
+			state->a = state->c;
 			break;
 		case 0x7A:
-			printf("Not implemented!\n");
+			state->a = state->d;
 			break;
 		case 0x7B:
-			printf("Not implemented!\n");
+			state->a = state->e;
 			break;
 		case 0x7C:
-			printf("Not implemented!\n");
+			state->a = state->h;
 			break;
 		case 0x7D:
-			printf("Not implemented!\n");
+			state->a = state->l;
 			break;
 		case 0x7E:
-			printf("Not implemented!\n");
+			{
+				unsigned short hl = (state->h << 8) | state->l;
+				state->a = state->memory[hl];
+			}
 			break;
 		case 0x7F:
-			printf("Not implemented!\n");
+			state->a = state->a;
 			break;
 		case 0x80:
 			printf("Not implemented!\n");
