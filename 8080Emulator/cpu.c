@@ -851,7 +851,17 @@ byte emulate8080Op(State8080* state)
 			}
 			break;
 		case 0x88:
-			printf("Not implemented!\n");
+			{
+				state->cc.ac = (((state->a & 0x0F) + (state->b & 0x0F) + state->cc.cy) & 0x10) == 0x10;
+				unsigned short res = state->a + state->b + state->cc.cy;
+
+				state->cc.z = (0 == (res & 0x00FF));
+				state->cc.s = (0x80 == (res & 0x80));
+				state->cc.p = pairtyCheck(res, 8);
+				state->cc.cy = ((res & 0xFF00) != 0);
+
+				state->a = (res & 0x00FF);
+			}
 			break;
 		case 0x89:
 			printf("Not implemented!\n");

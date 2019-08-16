@@ -38,7 +38,7 @@ int main(int argc, char** argv)
 	{
 		printf("\taBinaryBefore="BYTE_TO_BINARY_PATTERN"\n", BYTE_TO_BINARY(state->a));
 		done = emulate8080Op(state);
-		printf("\tpc=%d, sp=%d, a=%d, b=%d, c=%d, d=%d, e=%d, h=%d, l=%d, bc=%d, de=%d, hl=%d\n", state->pc, state->sp, state->a, state->b, state->c, state->d, state->e, state->h, state->l, (state->b << 8) | state->c, (state->d << 8) | state->e, (state->h << 8) | state->l);
+		printf("\tpc=%d, sp=%d, a=%d, b=%d, c=%d, d=%d, e=%d, h=%d, l=%d, m=%d, bc=%d, de=%d, hl=%d\n", state->pc, state->sp, state->a, state->b, state->c, state->d, state->e, state->h, state->l, state->memory[((state->h << 8) | state->l)], (state->b << 8) | state->c, (state->d << 8) | state->e, (state->h << 8) | state->l);
 		printf("\tz=%d, s=%d, p=%d, cy=%d, ac=%d\n", state->cc.z, state->cc.s, state->cc.p, state->cc.cy, state->cc.ac);
 		printf("\taBinaryAfter="BYTE_TO_BINARY_PATTERN"\n", BYTE_TO_BINARY(state->a));
 		system("PAUSE");
