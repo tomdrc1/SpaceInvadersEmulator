@@ -1061,28 +1061,109 @@ byte emulate8080Op(State8080* state)
 			}
 			break;
 		case 0x98:
-			printf("Not implemented!\n");
+			{
+				state->cc.ac = ((state->a & 0x0F) - (state->b & 0x0F) - state->cc.cy) < 0;
+				unsigned short res = state->a - state->b - state->cc.cy;
+
+				state->cc.z = (0 == (res & 0x00FF));
+				state->cc.s = (0x80 == (res & 0x80));
+				state->cc.p = pairtyCheck(res, 8);
+				state->cc.cy = ((res & 0xFF00) != 0);
+
+				state->a = (res & 0x0FF);
+			}
 			break;
 		case 0x99:
-			printf("Not implemented!\n");
+			{
+				state->cc.ac = ((state->a & 0x0F) - (state->c & 0x0F) - state->cc.cy) < 0;
+				unsigned short res = state->a - state->c - state->cc.cy;
+
+				state->cc.z = (0 == (res & 0x00FF));
+				state->cc.s = (0x80 == (res & 0x80));
+				state->cc.p = pairtyCheck(res, 8);
+				state->cc.cy = ((res & 0xFF00) != 0);
+
+				state->a = (res & 0x0FF);
+			}
 			break;
 		case 0x9A:
-			printf("Not implemented!\n");
+			{
+				state->cc.ac = ((state->a & 0x0F) - (state->d & 0x0F) - state->cc.cy) < 0;
+				unsigned short res = state->a - state->d - state->cc.cy;
+
+				state->cc.z = (0 == (res & 0x00FF));
+				state->cc.s = (0x80 == (res & 0x80));
+				state->cc.p = pairtyCheck(res, 8);
+				state->cc.cy = ((res & 0xFF00) != 0);
+
+				state->a = (res & 0x0FF);
+			}
 			break;
 		case 0x9B:
-			printf("Not implemented!\n");
+			{
+				state->cc.ac = ((state->a & 0x0F) - (state->e & 0x0F) - state->cc.cy) < 0;
+				unsigned short res = state->a - state->e - state->cc.cy;
+
+				state->cc.z = (0 == (res & 0x00FF));
+				state->cc.s = (0x80 == (res & 0x80));
+				state->cc.p = pairtyCheck(res, 8);
+				state->cc.cy = ((res & 0xFF00) != 0);
+
+				state->a = (res & 0x0FF);
+			}
 			break;
 		case 0x9C:
-			printf("Not implemented!\n");
+			{
+				state->cc.ac = ((state->a & 0x0F) - (state->h & 0x0F) - state->cc.cy) < 0;
+				unsigned short res = state->a - state->h - state->cc.cy;
+
+				state->cc.z = (0 == (res & 0x00FF));
+				state->cc.s = (0x80 == (res & 0x80));
+				state->cc.p = pairtyCheck(res, 8);
+				state->cc.cy = ((res & 0xFF00) != 0);
+
+				state->a = (res & 0x0FF);
+			}
 			break;
 		case 0x9D:
-			printf("Not implemented!\n");
+			{
+				state->cc.ac = ((state->a & 0x0F) - (state->l & 0x0F) - state->cc.cy) < 0;
+				unsigned short res = state->a - state->l - state->cc.cy;
+
+				state->cc.z = (0 == (res & 0x00FF));
+				state->cc.s = (0x80 == (res & 0x80));
+				state->cc.p = pairtyCheck(res, 8);
+				state->cc.cy = ((res & 0xFF00) != 0);
+
+				state->a = (res & 0x0FF);
+			}
 			break;
 		case 0x9E:
-			printf("Not implemented!\n");
+			{
+				unsigned short hl = (state->h << 8) | state->l;
+				state->cc.ac = ((state->a & 0x0F) - (state->memory[hl] & 0x0F) - state->cc.cy) < 0;
+				unsigned short res = state->a - state->memory[hl] - state->cc.cy;
+
+				state->cc.z = (0 == (res & 0x00FF));
+				state->cc.s = (0x80 == (res & 0x80));
+				state->cc.p = pairtyCheck(res, 8);
+				state->cc.cy = ((res & 0xFF00) != 0);
+
+				state->a = (res & 0x0FF);
+			}
 			break;
 		case 0x9F:
-			printf("Not implemented!\n");
+			{
+				state->cc.ac = ((state->a & 0x0F) - (state->a & 0x0F) - state->cc.cy) < 0;
+				unsigned short res = state->a - state->a - state->cc.cy;
+
+				state->cc.z = (0 == (res & 0x00FF));
+				state->cc.s = (0x80 == (res & 0x80));
+				state->cc.p = pairtyCheck(res, 8);
+				state->cc.cy = ((res & 0xFF00) != 0);
+
+				state->a = (res & 0x0FF);
+			}
 			break;
 		case 0xA0:
 			printf("Not implemented!\n");
