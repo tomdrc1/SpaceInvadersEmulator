@@ -996,6 +996,7 @@ byte emulate8080Op(State8080* state)
 				state->memory[state->sp - 1] = ((state->pc & 0xFF00) >> 8);
 				state->memory[state->sp - 2] = (state->pc & 0x00FF);
 				state->sp -= 2;
+
 				state->pc = (instruction[2] << 8) | instruction[1];
 			}
 			break;
@@ -1097,12 +1098,14 @@ byte emulate8080Op(State8080* state)
 				state->memory[state->sp - 1] = (state->pc & 0xFF00) >> 8;
 				state->memory[state->sp - 2] = state->pc & 0x00FF;
 				state->sp -= 2;
+
 				state->pc = (instruction[2] << 8) | instruction[1];
 			}
 			break;
 		case 0xD5:
 			state->memory[state->sp - 1] = state->d;
 			state->memory[state->sp - 2] = state->e;
+
 			state->sp -= 2;
 			break;
 		case 0xD6:
@@ -1147,55 +1150,118 @@ byte emulate8080Op(State8080* state)
 			}
 			break;
 		case 0xDD:
-			printf("Not implemented!\n");
 			break;
 		case 0xDE:
-			printf("Not implemented!\n");
+			sbb(state, instruction[1]);
+			state->pc++;
 			break;
 		case 0xDF:
 			printf("Not implemented!\n");
 			break;
 		case 0xE0:
-			printf("Not implemented!\n");
+			if (!state->cc.p) //Pairty Odd
+			{
+				state->pc = (state->memory[state->sp + 1] << 8) | state->memory[state->sp];
+				state->sp += 2;
+			}
 			break;
 		case 0xE1:
-			printf("Not implemented!\n");
+			state->l = state->memory[state->sp];
+			state->h = state->memory[state->sp + 1];
+			state->sp += 2;
 			break;
 		case 0xE2:
-			printf("Not implemented!\n");
+			if (!state->cc.p) //Pairty Odd
+			{
+				state->pc = (instruction[2] << 8) | instruction[1];
+			}
+			else
+			{
+				state->pc += 2;
+			}
 			break;
 		case 0xE3:
-			printf("Not implemented!\n");
+			{
+				byte tempH = state->h;
+				byte tempL = state->l;
+
+				state->l = state->memory[state->sp];
+				state->h = state->memory[state->sp + 1];
+				
+				state->memory[state->sp] = tempL;
+				state->memory[state->sp + 1] = tempH;
+			}
 			break;
 		case 0xE4:
-			printf("Not implemented!\n");
+			state->pc += 2;
+
+			if (!state->cc.p) //Parity Odd
+			{
+				state->memory[state->sp - 1] = (state->pc & 0xFF00) >> 8;
+				state->memory[state->sp - 2] = state->pc & 0x00FF;
+				state->sp -= 2;
+
+				state->pc = (instruction[2] << 8) | instruction[1];
+			}
 			break;
 		case 0xE5:
-			printf("Not implemented!\n");
+			state->memory[state->sp - 1] = state->h;
+			state->memory[state->sp - 2] = state->l;
+
+			state->sp -= 2;
 			break;
 		case 0xE6:
-			printf("Not implemented!\n");
+			ana(state, instruction[1]);
+			state->pc++;
 			break;
 		case 0xE7:
 			printf("Not implemented!\n");
 			break;
 		case 0xE8:
-			printf("Not implemented!\n");
+			if (state->cc.p) //Parity Even
+			{
+				state->pc = (state->memory[state->sp + 1] << 8) | state->memory[state->sp];
+				state->sp += 2;
+			}
 			break;
 		case 0xE9:
-			printf("Not implemented!\n");
+			state->pc = (state->h << 8) | state->l;
 			break;
 		case 0xEA:
-			printf("Not implemented!\n");
+			if (state->cc.p) //Parity Even
+			{
+				state->pc = (instruction[2] << 8) | instruction[1];
+			}
+			else
+			{
+				state->pc += 2;
+			}
 			break;
 		case 0xEB:
-			printf("Not implemented!\n");
+			{
+				byte tempH = state->h;
+				byte tempL = state->l;
+
+				state->h = state->d;
+				state->l = state->e;
+
+				state->d = tempH;
+				state->e = tempL;
+			}
 			break;
 		case 0xEC:
-			printf("Not implemented!\n");
+			state->pc += 2;
+
+			if (state->cc.p) //Parity Even
+			{
+				state->memory[state->sp - 1] = (state->pc & 0xFF00) >> 8;
+				state->memory[state->sp - 2] = state->pc & 0x00FF;
+				state->sp -= 2;
+
+				state->pc = (instruction[2] << 8) | instruction[1];
+			}
 			break;
 		case 0xED:
-			printf("Not implemented!\n");
 			break;
 		case 0xEE:
 			printf("Not implemented!\n");
