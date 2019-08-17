@@ -935,28 +935,31 @@ byte emulate8080Op(State8080* state)
 			ora(state, state->a);
 			break;
 		case 0xB8:
-			printf("Not implemented!\n");
+			cmp(state, state->b);
 			break;
 		case 0xB9:
-			printf("Not implemented!\n");
+			cmp(state, state->c);
 			break;
 		case 0xBA:
-			printf("Not implemented!\n");
+			cmp(state, state->d);
 			break;
 		case 0xBB:
-			printf("Not implemented!\n");
+			cmp(state, state->e);
 			break;
 		case 0xBC:
-			printf("Not implemented!\n");
+			cmp(state, state->h);
 			break;
 		case 0xBD:
-			printf("Not implemented!\n");
+			cmp(state, state->l);
 			break;
 		case 0xBE:
-			printf("Not implemented!\n");
+			{
+				unsigned short hl = (state->h << 8) | state->l;
+				cmp(state, state->memory[hl]);
+			}
 			break;
 		case 0xBF:
-			printf("Not implemented!\n");
+			cmp(state, state->a);
 			break;
 		case 0xC0:
 			printf("Not implemented!\n");
@@ -1274,4 +1277,19 @@ void ora(State8080* state, byte r)
 	state->cc.cy = 0; //There will never be any carry from the OR instruction
 
 	state->a = res;
+}
+
+/*
+	This function will emulate the CMP instruction. It will subtract r from A and will turn on the flags by the result.
+	Input: A pointer to a struct that represents the current state of the CPU, A byte that holds the register value
+*/
+void cmp(State8080* state, byte r)
+{
+	state->cc.ac = ((state->a & 0x0F) - (r & 0x0F)) < 0;
+	unsigned short res = state->a - r;
+
+	state->cc.z = (0 == (res & 0x00FF));
+	state->cc.s = (0x80 == (res & 0x80));
+	state->cc.p = pairtyCheck(res, 8);
+	state->cc.cy = ((res & 0xFF00) != 0);
 }
