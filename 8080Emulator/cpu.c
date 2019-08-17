@@ -1088,7 +1088,8 @@ byte emulate8080Op(State8080* state)
 			}
 			break;
 		case 0xD3:
-			printf("Not implemented!\n");
+			printf("OUT");
+			state->pc++;
 			break;
 		case 0xD4:
 			state->pc += 2;
@@ -1135,7 +1136,8 @@ byte emulate8080Op(State8080* state)
 			}
 			break;
 		case 0xDB:
-			printf("Not implemented!\n");
+			printf("IN");
+			state->pc++;
 			break;
 		case 0xDC:
 			state->pc += 2;
@@ -1302,7 +1304,7 @@ byte emulate8080Op(State8080* state)
 			}
 			break;
 		case 0xF3:
-			printf("Not implemented!\n");
+			state->int_enable = 0;
 			break;
 		case 0xF4:
 			state->pc += 2;
@@ -1334,22 +1336,41 @@ byte emulate8080Op(State8080* state)
 			printf("Not implemented!\n");
 			break;
 		case 0xF8:
-			printf("Not implemented!\n");
+			if (state->cc.s)
+			{
+				state->pc = (state->memory[state->sp + 1] << 8) | state->memory[state->sp];
+				state->sp += 2;
+			}
 			break;
 		case 0xF9:
 			state->sp = (state->h << 8) | state->l;
 			break;
 		case 0xFA:
-			printf("Not implemented!\n");
+			if (state->cc.s)
+			{
+				state->pc = (instruction[2] << 8) | instruction[1];
+			}
+			else
+			{
+				state->pc += 2;
+			}
 			break;
 		case 0xFB:
-			printf("Not implemented!\n");
+			state->int_enable = 1;
 			break;
 		case 0xFC:
-			printf("Not implemented!\n");
+			state->pc += 2;
+
+			if (state->cc.s)
+			{
+				state->memory[state->sp - 1] = (state->pc & 0xFF00) >> 8;
+				state->memory[state->sp - 2] = state->pc & 0x00FF;
+				state->sp -= 2;
+
+				state->pc = (instruction[2] << 8) | instruction[1];
+			}
 			break;
 		case 0xFD:
-			printf("Not implemented!\n");
 			break;
 		case 0xFE:
 			cmp(state, instruction[1]);

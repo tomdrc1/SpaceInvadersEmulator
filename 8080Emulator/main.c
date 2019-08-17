@@ -28,12 +28,12 @@ int main(int argc, char** argv)
 
 	setupState(state);
 	readFileToMemory(state, "test.h", 0);
-	/*
-	readFileToMemory(state, "SpaceInvaders.h", 0);
-	readFileToMemory(state, "SpaceInvaders.g", 0x800);
-	readFileToMemory(state, "SpaceInvaders.f", 0x1000);
-	readFileToMemory(state, "SpaceInvaders.e", 0x1800);
-	*/
+	
+	//readFileToMemory(state, "SpaceInvaders.h", 0);
+	//readFileToMemory(state, "SpaceInvaders.g", 0x800);
+	//readFileToMemory(state, "SpaceInvaders.f", 0x1000);
+	//readFileToMemory(state, "SpaceInvaders.e", 0x1800);
+	
 	while (done == 0)
 	{
 		printf("\taBinaryBefore="BYTE_TO_BINARY_PATTERN"\n", BYTE_TO_BINARY(state->a));
