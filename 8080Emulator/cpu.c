@@ -746,553 +746,166 @@ byte emulate8080Op(State8080* state)
 			state->a = state->a;
 			break;
 		case 0x80:
-			{
-				state->cc.ac = (((state->a & 0x0F) + (state->b & 0x0F)) & 0x10) == 0x10;
-				unsigned short res = state->a + state->b;
-
-				state->cc.z = (0 == (res & 0x00FF));
-				state->cc.s = (0x80 == (res & 0x80));
-				state->cc.p = pairtyCheck(res, 8);
-				state->cc.cy = ((res & 0xFF00) != 0);
-
-				state->a = (res & 0x00FF);
-			}
+			add(state, state->b);
 			break;
 		case 0x81:
-			{
-				state->cc.ac = (((state->a & 0x0F) + (state->c & 0x0F)) & 0x10) == 0x10;
-				unsigned short res = state->a + state->c;
-
-				state->cc.z = (0 == (res & 0x00FF));
-				state->cc.s = (0x80 == (res & 0x80));
-				state->cc.p = pairtyCheck(res, 8);
-				state->cc.cy = ((res & 0xFF00) != 0);
-
-				state->a = (res & 0x00FF);
-			}
+			add(state, state->c);
 			break;
 		case 0x82:
-			{
-				state->cc.ac = (((state->a & 0x0F) + (state->d & 0x0F)) & 0x10) == 0x10;
-				unsigned short res = state->a + state->d;
-
-				state->cc.z = (0 == (res & 0x00FF));
-				state->cc.s = (0x80 == (res & 0x80));
-				state->cc.p = pairtyCheck(res, 8);
-				state->cc.cy = ((res & 0xFF00) != 0);
-
-				state->a = (res & 0x00FF);
-			}
+			add(state, state->d);
 			break;
 		case 0x83:
-			{
-				state->cc.ac = (((state->a & 0x0F) + (state->e & 0x0F)) & 0x10) == 0x10;
-				unsigned short res = state->a + state->e;
-
-				state->cc.z = (0 == (res & 0x00FF));
-				state->cc.s = (0x80 == (res & 0x80));
-				state->cc.p = pairtyCheck(res, 8);
-				state->cc.cy = ((res & 0xFF00) != 0);
-
-				state->a = (res & 0x00FF);
-			}
+			add(state, state->e);
 			break;
 		case 0x84:
-			{
-				state->cc.ac = (((state->a & 0x0F) + (state->h & 0x0F)) & 0x10) == 0x10;
-				unsigned short res = state->a + state->h;
-
-				state->cc.z = (0 == (res & 0x00FF));
-				state->cc.s = (0x80 == (res & 0x80));
-				state->cc.p = pairtyCheck(res, 8);
-				state->cc.cy = ((res & 0xFF00) != 0);
-
-				state->a = (res & 0x00FF);
-			}
+			add(state, state->h);
 			break;
 		case 0x85:
-			{
-				state->cc.ac = (((state->a & 0x0F) + (state->l & 0x0F)) & 0x10) == 0x10;
-				unsigned short res = state->a + state->l;
-
-				state->cc.z = (0 == (res & 0x00FF));
-				state->cc.s = (0x80 == (res & 0x80));
-				state->cc.p = pairtyCheck(res, 8);
-				state->cc.cy = ((res & 0xFF00) != 0);
-
-				state->a = (res & 0x00FF);
-			}
+			add(state, state->l);
 			break;
 		case 0x86:
 			{
 				unsigned short hl = (state->h << 8) | state->l;
-				state->cc.ac = (((state->a & 0x0F) + (state->memory[hl] & 0x0F)) & 0x10) == 0x10;
-				unsigned short res = state->a + state->memory[hl];
-
-				state->cc.z = (0 == (res & 0x00FF));
-				state->cc.s = (0x80 == (res & 0x80));
-				state->cc.p = pairtyCheck(res, 8);
-				state->cc.cy = ((res & 0xFF00) != 0);
-
-				state->a = (res & 0x00FF);
+				add(state, state->memory[hl]);
 			}
 			break;
 		case 0x87:
-			{
-				state->cc.ac = (((state->a & 0x0F) + (state->a & 0x0F)) & 0x10) == 0x10;
-				unsigned short res = state->a + state->a;
-
-				state->cc.z = (0 == (res & 0x00FF));
-				state->cc.s = (0x80 == (res & 0x80));
-				state->cc.p = pairtyCheck(res, 8);
-				state->cc.cy = ((res & 0xFF00) != 0);
-
-				state->a = (res & 0x00FF);
-			}
+			add(state, state->a);
 			break;
 		case 0x88:
-			{
-				state->cc.ac = (((state->a & 0x0F) + (state->b & 0x0F) + state->cc.cy) & 0x10) == 0x10;
-				unsigned short res = state->a + state->b + state->cc.cy;
-
-				state->cc.z = (0 == (res & 0x00FF));
-				state->cc.s = (0x80 == (res & 0x80));
-				state->cc.p = pairtyCheck(res, 8);
-				state->cc.cy = ((res & 0xFF00) != 0);
-
-				state->a = (res & 0x00FF);
-			}
+			adc(state, state->b);
 			break;
 		case 0x89:
-			{
-				state->cc.ac = (((state->a & 0x0F) + (state->c & 0x0F) + state->cc.cy) & 0x10) == 0x10;
-				unsigned short res = state->a + state->c + state->cc.cy;
-
-				state->cc.z = (0 == (res & 0x00FF));
-				state->cc.s = (0x80 == (res & 0x80));
-				state->cc.p = pairtyCheck(res, 8);
-				state->cc.cy = ((res & 0xFF00) != 0);
-
-				state->a = (res & 0x00FF);
-			}
+			adc(state, state->c);
 			break;
 		case 0x8A:
-			{
-				state->cc.ac = (((state->a & 0x0F) + (state->d & 0x0F) + state->cc.cy) & 0x10) == 0x10;
-				unsigned short res = state->a + state->d + state->cc.cy;
-
-				state->cc.z = (0 == (res & 0x00FF));
-				state->cc.s = (0x80 == (res & 0x80));
-				state->cc.p = pairtyCheck(res, 8);
-				state->cc.cy = ((res & 0xFF00) != 0);
-
-				state->a = (res & 0x00FF);
-			}
+			adc(state, state->d);
 			break;
 		case 0x8B:
-			{
-				state->cc.ac = (((state->a & 0x0F) + (state->e & 0x0F) + state->cc.cy) & 0x10) == 0x10;
-				unsigned short res = state->a + state->e + state->cc.cy;
-
-				state->cc.z = (0 == (res & 0x00FF));
-				state->cc.s = (0x80 == (res & 0x80));
-				state->cc.p = pairtyCheck(res, 8);
-				state->cc.cy = ((res & 0xFF00) != 0);
-
-				state->a = (res & 0x00FF);
-			}
+			adc(state, state->e);
 			break;
 		case 0x8C:
-			{
-				state->cc.ac = (((state->a & 0x0F) + (state->h & 0x0F) + state->cc.cy) & 0x10) == 0x10;
-				unsigned short res = state->a + state->h + state->cc.cy;
-
-				state->cc.z = (0 == (res & 0x00FF));
-				state->cc.s = (0x80 == (res & 0x80));
-				state->cc.p = pairtyCheck(res, 8);
-				state->cc.cy = ((res & 0xFF00) != 0);
-
-				state->a = (res & 0x00FF);
-			}
+			adc(state, state->h);
 			break;
 		case 0x8D:
-			{
-				state->cc.ac = (((state->a & 0x0F) + (state->l & 0x0F) + state->cc.cy) & 0x10) == 0x10;
-				unsigned short res = state->a + state->l + state->cc.cy;
-
-				state->cc.z = (0 == (res & 0x00FF));
-				state->cc.s = (0x80 == (res & 0x80));
-				state->cc.p = pairtyCheck(res, 8);
-				state->cc.cy = ((res & 0xFF00) != 0);
-
-				state->a = (res & 0x00FF);
-			}
+			adc(state, state->l);
 			break;
 		case 0x8E:
 			{
 				unsigned short hl = (state->h << 8) | state->l;
-				state->cc.ac = (((state->a & 0x0F) + (state->memory[hl] & 0x0F) + state->cc.cy) & 0x10) == 0x10;
-				unsigned short res = state->a + state->memory[hl] + state->cc.cy;
-
-				state->cc.z = (0 == (res & 0x00FF));
-				state->cc.s = (0x80 == (res & 0x80));
-				state->cc.p = pairtyCheck(res, 8);
-				state->cc.cy = ((res & 0xFF00) != 0);
-
-				state->a = (res & 0x00FF);
+				adc(state, state->memory[hl]);
 			}
 			break;
 		case 0x8F:
-			{
-				state->cc.ac = (((state->a & 0x0F) + (state->a & 0x0F) + state->cc.cy) & 0x10) == 0x10;
-				unsigned short res = state->a + state->a + state->cc.cy;
-
-				state->cc.z = (0 == (res & 0x00FF));
-				state->cc.s = (0x80 == (res & 0x80));
-				state->cc.p = pairtyCheck(res, 8);
-				state->cc.cy = ((res & 0xFF00) != 0);
-
-				state->a = (res & 0x00FF);
-			}
+			adc(state, state->a);
 			break;
 		case 0x90:	
-			{
-				state->cc.ac = ((state->a & 0x0F) - (state->b & 0x0F)) < 0;
-				unsigned short res = state->a - state->b;
-
-				state->cc.z = (0 == (res & 0x00FF));
-				state->cc.s = (0x80 == (res & 0x80));
-				state->cc.p = pairtyCheck(res, 8);
-				state->cc.cy = ((res & 0xFF00) != 0);
-
-				state->a = (res & 0x00FF);
-			}
+			sub(state, state->b);
 			break;
 		case 0x91:
-			{
-				state->cc.ac = ((state->a & 0x0F) - (state->c & 0x0F)) < 0;
-				unsigned short res = state->a - state->c;
-
-				state->cc.z = (0 == (res & 0x00FF));
-				state->cc.s = (0x80 == (res & 0x80));
-				state->cc.p = pairtyCheck(res, 8);
-				state->cc.cy = ((res & 0xFF00) != 0);
-
-				state->a = (res & 0x00FF);
-			}
+			sub(state, state->c);
 			break;
 		case 0x92:
-			{
-				state->cc.ac = ((state->a & 0x0F) - (state->d & 0x0F)) < 0;
-				unsigned short res = state->a - state->d;
-
-				state->cc.z = (0 == (res & 0x00FF));
-				state->cc.s = (0x80 == (res & 0x80));
-				state->cc.p = pairtyCheck(res, 8);
-				state->cc.cy = ((res & 0xFF00) != 0);
-
-				state->a = (res & 0x00FF);
-			}
+			sub(state, state->d);
 			break;
 		case 0x93:
-			{
-				state->cc.ac = ((state->a & 0x0F) - (state->e & 0x0F)) < 0;
-				unsigned short res = state->a - state->e;
-
-				state->cc.z = (0 == (res & 0x00FF));
-				state->cc.s = (0x80 == (res & 0x80));
-				state->cc.p = pairtyCheck(res, 8);
-				state->cc.cy = ((res & 0xFF00) != 0);
-
-				state->a = (res & 0x00FF);
-			}
+			sub(state, state->e);
 			break;
 		case 0x94:
-			{
-				state->cc.ac = ((state->a & 0x0F) - (state->h & 0x0F)) < 0;
-				unsigned short res = state->a - state->h;
-
-				state->cc.z = (0 == (res & 0x00FF));
-				state->cc.s = (0x80 == (res & 0x80));
-				state->cc.p = pairtyCheck(res, 8);
-				state->cc.cy = ((res & 0xFF00) != 0);
-
-				state->a = (res & 0x00FF);
-			}
+			sub(state, state->h);
 			break;
 		case 0x95:
-			{
-				state->cc.ac = ((state->a & 0x0F) - (state->l & 0x0F)) < 0;
-				unsigned short res = state->a - state->l;
-
-				state->cc.z = (0 == (res & 0x00FF));
-				state->cc.s = (0x80 == (res & 0x80));
-				state->cc.p = pairtyCheck(res, 8);
-				state->cc.cy = ((res & 0xFF00) != 0);
-
-				state->a = (res & 0x00FF);
-			}
+			sub(state, state->l);
 			break;
 		case 0x96:
 			{
 				unsigned short hl = (state->h << 8) | state->l;
-				state->cc.ac = ((state->a & 0x0F) - (state->memory[hl] & 0x0F)) < 0;
-				unsigned short res = state->a - state->memory[hl];
-
-				state->cc.z = (0 == (res & 0x00FF));
-				state->cc.s = (0x80 == (res & 0x80));
-				state->cc.p = pairtyCheck(res, 8);
-				state->cc.cy = ((res & 0xFF00) != 0);
-
-				state->a = (res & 0x00FF);
+				sub(state, state->memory[hl]);
 			}
 			break;
 		case 0x97:
-			{
-				state->cc.ac = ((state->a & 0x0F) - (state->a & 0x0F)) < 0;
-				unsigned short res = state->a - state->a;
-
-				state->cc.z = (0 == (res & 0x00FF));
-				state->cc.s = (0x80 == (res & 0x80));
-				state->cc.p = pairtyCheck(res, 8);
-				state->cc.cy = ((res & 0xFF00) != 0);
-
-				state->a = (res & 0x00FF);
-			}
+			sub(state, state->a);
 			break;
 		case 0x98:
-			{
-				state->cc.ac = ((state->a & 0x0F) - (state->b & 0x0F) - state->cc.cy) < 0;
-				unsigned short res = state->a - state->b - state->cc.cy;
-
-				state->cc.z = (0 == (res & 0x00FF));
-				state->cc.s = (0x80 == (res & 0x80));
-				state->cc.p = pairtyCheck(res, 8);
-				state->cc.cy = ((res & 0xFF00) != 0);
-
-				state->a = (res & 0x0FF);
-			}
+			sbb(state, state->b);
 			break;
 		case 0x99:
-			{
-				state->cc.ac = ((state->a & 0x0F) - (state->c & 0x0F) - state->cc.cy) < 0;
-				unsigned short res = state->a - state->c - state->cc.cy;
-
-				state->cc.z = (0 == (res & 0x00FF));
-				state->cc.s = (0x80 == (res & 0x80));
-				state->cc.p = pairtyCheck(res, 8);
-				state->cc.cy = ((res & 0xFF00) != 0);
-
-				state->a = (res & 0x0FF);
-			}
+			sbb(state, state->c);
 			break;
 		case 0x9A:
-			{
-				state->cc.ac = ((state->a & 0x0F) - (state->d & 0x0F) - state->cc.cy) < 0;
-				unsigned short res = state->a - state->d - state->cc.cy;
-
-				state->cc.z = (0 == (res & 0x00FF));
-				state->cc.s = (0x80 == (res & 0x80));
-				state->cc.p = pairtyCheck(res, 8);
-				state->cc.cy = ((res & 0xFF00) != 0);
-
-				state->a = (res & 0x0FF);
-			}
+			sbb(state, state->d);
 			break;
 		case 0x9B:
-			{
-				state->cc.ac = ((state->a & 0x0F) - (state->e & 0x0F) - state->cc.cy) < 0;
-				unsigned short res = state->a - state->e - state->cc.cy;
-
-				state->cc.z = (0 == (res & 0x00FF));
-				state->cc.s = (0x80 == (res & 0x80));
-				state->cc.p = pairtyCheck(res, 8);
-				state->cc.cy = ((res & 0xFF00) != 0);
-
-				state->a = (res & 0x0FF);
-			}
+			sbb(state, state->e);
 			break;
 		case 0x9C:
-			{
-				state->cc.ac = ((state->a & 0x0F) - (state->h & 0x0F) - state->cc.cy) < 0;
-				unsigned short res = state->a - state->h - state->cc.cy;
-
-				state->cc.z = (0 == (res & 0x00FF));
-				state->cc.s = (0x80 == (res & 0x80));
-				state->cc.p = pairtyCheck(res, 8);
-				state->cc.cy = ((res & 0xFF00) != 0);
-
-				state->a = (res & 0x0FF);
-			}
+			sbb(state, state->h);
 			break;
 		case 0x9D:
-			{
-				state->cc.ac = ((state->a & 0x0F) - (state->l & 0x0F) - state->cc.cy) < 0;
-				unsigned short res = state->a - state->l - state->cc.cy;
-
-				state->cc.z = (0 == (res & 0x00FF));
-				state->cc.s = (0x80 == (res & 0x80));
-				state->cc.p = pairtyCheck(res, 8);
-				state->cc.cy = ((res & 0xFF00) != 0);
-
-				state->a = (res & 0x0FF);
-			}
+			sbb(state, state->l);
 			break;
 		case 0x9E:
 			{
 				unsigned short hl = (state->h << 8) | state->l;
-				state->cc.ac = ((state->a & 0x0F) - (state->memory[hl] & 0x0F) - state->cc.cy) < 0;
-				unsigned short res = state->a - state->memory[hl] - state->cc.cy;
-
-				state->cc.z = (0 == (res & 0x00FF));
-				state->cc.s = (0x80 == (res & 0x80));
-				state->cc.p = pairtyCheck(res, 8);
-				state->cc.cy = ((res & 0xFF00) != 0);
-
-				state->a = (res & 0x0FF);
+				sbb(state, state->memory[hl]);
 			}
 			break;
 		case 0x9F:
-			{
-				state->cc.ac = ((state->a & 0x0F) - (state->a & 0x0F) - state->cc.cy) < 0;
-				unsigned short res = state->a - state->a - state->cc.cy;
-
-				state->cc.z = (0 == (res & 0x00FF));
-				state->cc.s = (0x80 == (res & 0x80));
-				state->cc.p = pairtyCheck(res, 8);
-				state->cc.cy = ((res & 0xFF00) != 0);
-
-				state->a = (res & 0x0FF);
-			}
+			sbb(state, state->a);
 			break;
 		case 0xA0:
-			{
-				//state->cc.ac ???
-				byte res = state->a & state->b;
-
-				state->cc.z = (0 == res);
-				state->cc.s = (0x80 == (res & 0x80));
-				state->cc.p = pairtyCheck(res, 8);
-				state->cc.cy = 0; //There will never be any carry from the AND instruction
-
-				state->a = res;
-			}
+			ana(state, state->b);
 			break;
 		case 0xA1:
-			{
-				//state->cc.ac ???
-				byte res = state->a & state->c;
-
-				state->cc.z = (0 == res);
-				state->cc.s = (0x80 == (res & 0x80));
-				state->cc.p = pairtyCheck(res, 8);
-				state->cc.cy = 0; //There will never be any carry from the AND instruction
-
-				state->a = res;
-			}
+			ana(state, state->c);
 			break;
 		case 0xA2:
-			{
-				//state->cc.ac ???
-				byte res = state->a & state->d;
-
-				state->cc.z = (0 == res);
-				state->cc.s = (0x80 == (res & 0x80));
-				state->cc.p = pairtyCheck(res, 8);
-				state->cc.cy = 0; //There will never be any carry from the AND instruction
-
-				state->a = res;
-			}
+			ana(state, state->d);
 			break;
 		case 0xA3:
-			{
-				//state->cc.ac ???
-				byte res = state->a & state->e;
-
-				state->cc.z = (0 == res);
-				state->cc.s = (0x80 == (res & 0x80));
-				state->cc.p = pairtyCheck(res, 8);
-				state->cc.cy = 0; //There will never be any carry from the AND instruction
-
-				state->a = res;
-			}
+			ana(state, state->e);
 			break;
 		case 0xA4:
-			{
-				//state->cc.ac ???
-				byte res = state->a & state->h;
-
-				state->cc.z = (0 == res);
-				state->cc.s = (0x80 == (res & 0x80));
-				state->cc.p = pairtyCheck(res, 8);
-				state->cc.cy = 0; //There will never be any carry from the AND instruction
-
-				state->a = res;
-			}
+			ana(state, state->h);
 			break;
 		case 0xA5:
-			{
-				//state->cc.ac ???
-				byte res = state->a & state->l;
-
-				state->cc.z = (0 == res);
-				state->cc.s = (0x80 == (res & 0x80));
-				state->cc.p = pairtyCheck(res, 8);
-				state->cc.cy = 0; //There will never be any carry from the AND instruction
-
-				state->a = res;
-			}
+			ana(state, state->l);
 			break;
 		case 0xA6:
 			{
 				unsigned short hl = (state->h << 8) | state->l;	
-				//state->cc.ac ???
-				byte res = state->a & state->memory[hl];
-
-				state->cc.z = (0 == res);
-				state->cc.s = (0x80 == (res & 0x80));
-				state->cc.p = pairtyCheck(res, 8);
-				state->cc.cy = 0; //There will never be any carry from the AND instruction
-
-				state->a = res;
+				ana(state, state->memory[hl]);
 			}
 			break;
 		case 0xA7:
-			{
-				//state->cc.ac ???
-				byte res = state->a & state->a;
-
-				state->cc.z = (0 == res);
-				state->cc.s = (0x80 == (res & 0x80));
-				state->cc.p = pairtyCheck(res, 8);
-				state->cc.cy = 0; //There will never be any carry from the AND instruction
-
-				state->a = res;
-			}
+			ana(state, state->a);
 			break;
 		case 0xA8:
-			printf("Not implemented!\n");
+			xra(state, state->b);
 			break;
 		case 0xA9:
-			printf("Not implemented!\n");
+			xra(state, state->c);
 			break;
 		case 0xAA:
-			printf("Not implemented!\n");
+			xra(state, state->d);
 			break;
 		case 0xAB:
-			printf("Not implemented!\n");
+			xra(state, state->e);
 			break;
 		case 0xAC:
-			printf("Not implemented!\n");
+			xra(state, state->h);
 			break;
 		case 0xAD:
-			printf("Not implemented!\n");
+			xra(state, state->l);
 			break;
 		case 0xAE:
-			printf("Not implemented!\n");
+			{
+				unsigned short hl = (state->h << 8) | state->l;
+				xra(state, state->memory[hl]);
+			}
 			break;
 		case 0xAF:
-			printf("Not implemented!\n");
+			xra(state, state->a);
 			break;
 		case 0xB0:
 			printf("Not implemented!\n");
@@ -1300,10 +913,345 @@ byte emulate8080Op(State8080* state)
 		case 0xB1:
 			printf("Not implemented!\n");
 			break;
-
+		case 0xB2:
+			printf("Not implemented!\n");
+			break;
+		case 0xB3:
+			printf("Not implemented!\n");
+			break;
+		case 0xB4:
+			printf("Not implemented!\n");
+			break;
+		case 0xB5:
+			printf("Not implemented!\n");
+			break;
+		case 0xB6:
+			printf("Not implemented!\n");
+			break;
+		case 0xB7:
+			printf("Not implemented!\n");
+			break;
+		case 0xB8:
+			printf("Not implemented!\n");
+			break;
+		case 0xB9:
+			printf("Not implemented!\n");
+			break;
+		case 0xBA:
+			printf("Not implemented!\n");
+			break;
+		case 0xBB:
+			printf("Not implemented!\n");
+			break;
+		case 0xBC:
+			printf("Not implemented!\n");
+			break;
+		case 0xBD:
+			printf("Not implemented!\n");
+			break;
+		case 0xBE:
+			printf("Not implemented!\n");
+			break;
+		case 0xBF:
+			printf("Not implemented!\n");
+			break;
+		case 0xC0:
+			printf("Not implemented!\n");
+			break;
+		case 0xC1:
+			printf("Not implemented!\n");
+			break;
+		case 0xC2:
+			printf("Not implemented!\n");
+			break;
+		case 0xC3:
+			printf("Not implemented!\n");
+			break;
+		case 0xC4:
+			printf("Not implemented!\n");
+			break;
+		case 0xC5:
+			printf("Not implemented!\n");
+			break;
+		case 0xC6:
+			printf("Not implemented!\n");
+			break;
+		case 0xC7:
+			printf("Not implemented!\n");
+			break;
+		case 0xC8:
+			printf("Not implemented!\n");
+			break;
+		case 0xC9:
+			printf("Not implemented!\n");
+			break;
+		case 0xCA:
+			printf("Not implemented!\n");
+			break;
+		case 0xCB:
+			printf("Not implemented!\n");
+			break;
+		case 0xCC:
+			printf("Not implemented!\n");
+			break;
+		case 0xCD:
+			printf("Not implemented!\n");
+			break;
+		case 0xCE:
+			printf("Not implemented!\n");
+			break;
+		case 0xCF:
+			printf("Not implemented!\n");
+			break;
+		case 0xD0:
+			printf("Not implemented!\n");
+			break;
+		case 0xD1:
+			printf("Not implemented!\n");
+			break;
+		case 0xD2:
+			printf("Not implemented!\n");
+			break;
+		case 0xD3:
+			printf("Not implemented!\n");
+			break;
+		case 0xD4:
+			printf("Not implemented!\n");
+			break;
+		case 0xD5:
+			printf("Not implemented!\n");
+			break;
+		case 0xD6:
+			printf("Not implemented!\n");
+			break;
+		case 0xD7:
+			printf("Not implemented!\n");
+			break;
+		case 0xD8:
+			printf("Not implemented!\n");
+			break;
+		case 0xD9:
+			printf("Not implemented!\n");
+			break;
+		case 0xDA:
+			printf("Not implemented!\n");
+			break;
+		case 0xDB:
+			printf("Not implemented!\n");
+			break;
+		case 0xDC:
+			printf("Not implemented!\n");
+			break;
+		case 0xDD:
+			printf("Not implemented!\n");
+			break;
+		case 0xDE:
+			printf("Not implemented!\n");
+			break;
+		case 0xDF:
+			printf("Not implemented!\n");
+			break;
+		case 0xE0:
+			printf("Not implemented!\n");
+			break;
+		case 0xE1:
+			printf("Not implemented!\n");
+			break;
+		case 0xE2:
+			printf("Not implemented!\n");
+			break;
+		case 0xE3:
+			printf("Not implemented!\n");
+			break;
+		case 0xE4:
+			printf("Not implemented!\n");
+			break;
+		case 0xE5:
+			printf("Not implemented!\n");
+			break;
+		case 0xE6:
+			printf("Not implemented!\n");
+			break;
+		case 0xE7:
+			printf("Not implemented!\n");
+			break;
+		case 0xE8:
+			printf("Not implemented!\n");
+			break;
+		case 0xE9:
+			printf("Not implemented!\n");
+			break;
+		case 0xEA:
+			printf("Not implemented!\n");
+			break;
+		case 0xEB:
+			printf("Not implemented!\n");
+			break;
+		case 0xEC:
+			printf("Not implemented!\n");
+			break;
+		case 0xED:
+			printf("Not implemented!\n");
+			break;
+		case 0xEE:
+			printf("Not implemented!\n");
+			break;
+		case 0xEF:
+			printf("Not implemented!\n");
+			break;
+		case 0xF0:
+			printf("Not implemented!\n");
+			break;
+		case 0xF1:
+			printf("Not implemented!\n");
+			break;
+		case 0xF2:
+			printf("Not implemented!\n");
+			break;
+		case 0xF3:
+			printf("Not implemented!\n");
+			break;
+		case 0xF4:
+			printf("Not implemented!\n");
+			break;
+		case 0xF5:
+			printf("Not implemented!\n");
+			break;
+		case 0xF6:
+			printf("Not implemented!\n");
+			break;
+		case 0xF7:
+			printf("Not implemented!\n");
+			break;
+		case 0xF8:
+			printf("Not implemented!\n");
+			break;
+		case 0xF9:
+			printf("Not implemented!\n");
+			break;
+		case 0xFA:
+			printf("Not implemented!\n");
+			break;
+		case 0xFB:
+			printf("Not implemented!\n");
+			break;
+		case 0xFC:
+			printf("Not implemented!\n");
+			break;
+		case 0xFD:
+			printf("Not implemented!\n");
+			break;
+		case 0xFE:
+			printf("Not implemented!\n");
+			break;
+		case 0xFF:
+			printf("Not implemented!\n");
+			break;
 	}
 
 	state->pc++;
 
 	return 0;
+}
+
+/*
+	This function will emulate the ADD instruction
+	Input: A pointer to the struct that represents the current state of the CPU, a byte that holds the value of the register that we want to add to the acumlator
+*/
+void add(State8080* state, byte r)
+{
+	state->cc.ac = (((state->a & 0x0F) + (r & 0x0F)) & 0x10) == 0x10;
+	unsigned short res = state->a + r;
+
+	state->cc.z = (0 == (res & 0x00FF));
+	state->cc.s = (0x80 == (res & 0x80));
+	state->cc.p = pairtyCheck(res, 8);
+	state->cc.cy = ((res & 0xFF00) != 0);
+
+	state->a = (res & 0x00FF);
+}
+
+/*
+	This function will emulate the ADC instruction (Add with carry)
+	Input: A pointer to the struct that represents the current state of the CPU, a byte that holds the value of the register that we want to add plus the carry
+*/
+void adc(State8080* state, byte r)
+{
+	state->cc.ac = (((state->a & 0x0F) + (r & 0x0F) + state->cc.cy) & 0x10) == 0x10;
+	unsigned short res = state->a + r + state->cc.cy;
+
+	state->cc.z = (0 == (res & 0x00FF));
+	state->cc.s = (0x80 == (res & 0x80));
+	state->cc.p = pairtyCheck(res, 8);
+	state->cc.cy = ((res & 0xFF00) != 0);
+
+	state->a = (res & 0x00FF);
+}
+
+/*
+	This function will emulate the SUB instruction
+	Input: A pointer to the struct that represents the current state of the CPU, a byte that holds the value of the reigster that we want to sub
+*/
+void sub(State8080* state, byte r)
+{
+	state->cc.ac = ((state->a & 0x0F) - (r & 0x0F)) < 0;
+	unsigned short res = state->a - r;
+
+	state->cc.z = (0 == (res & 0x00FF));
+	state->cc.s = (0x80 == (res & 0x80));
+	state->cc.p = pairtyCheck(res, 8);
+	state->cc.cy = ((res & 0xFF00) != 0);
+
+	state->a = (res & 0x00FF);
+}
+
+/*
+	This function will emulate the SBB insturction (sub register with carry)
+	Input: A pointer to a struct that represents the current state of the CPU, a byte that holds the value of the register that we want to sub
+*/
+void sbb(State8080* state, byte r)
+{
+	state->cc.ac = ((state->a & 0x0F) - (r & 0x0F) - state->cc.cy) < 0;
+	unsigned short res = state->a - r - state->cc.cy;
+
+	state->cc.z = (0 == (res & 0x00FF));
+	state->cc.s = (0x80 == (res & 0x80));
+	state->cc.p = pairtyCheck(res, 8);
+	state->cc.cy = ((res & 0xFF00) != 0);
+
+	state->a = (res & 0x0FF);
+}
+
+/*
+	This function will emulate the ANA instruction (And operator on A register with r register)
+	Input: A pointer to a struct that represents the current state of the CPU, a byte that holds the value of the register that we want to AND with
+*/
+void ana(State8080* state, byte r)
+{
+	//state->cc.ac ???
+	byte res = state->a & r;
+
+	state->cc.z = (0 == res);
+	state->cc.s = (0x80 == (res & 0x80));
+	state->cc.p = pairtyCheck(res, 8);
+	state->cc.cy = 0; //There will never be any carry from the AND instruction
+
+	state->a = res;
+}
+
+/*
+	This function will emulate the XRA instruction (XOR operator on A register with r register
+	Input: A pointer to a struct that represents the current state of the CPU, a byte that holds teh value of the register that we want to XOR with
+*/
+void xra(State8080* state, byte r)
+{
+	//state->cc.ac ???
+	byte res = state->a ^ r;
+
+	state->cc.z = (0 == res);
+	state->cc.s = (0x80 == (res & 0x80));
+	state->cc.p = pairtyCheck(res, 8);
+	state->cc.cy = 0; //There will never be any carry from the XOR instrucion
+
+	state->a = res;
 }

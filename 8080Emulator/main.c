@@ -66,7 +66,7 @@ void setupState(State8080* state)
 	memset(state->memory, NULL, MEMORY_SIZE);
 
 	state->cc.z = 1;
-	state->cc.s = 1;
+	state->cc.s = 0;
 	state->cc.p = 1;
 	state->cc.cy = 0;
 	state->cc.ac = 1;

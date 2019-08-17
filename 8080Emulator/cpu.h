@@ -26,3 +26,9 @@ typedef struct State8080 {
 
 byte pairtyCheck(byte num, byte size);
 byte emulate8080Op(State8080* state);
+void add(State8080* state, byte r);
+void adc(State8080* state, byte r);
+void sub(State8080* state, byte r);
+void sbb(State8080* state, byte r);
+void ana(State8080* state, byte r);
+void xra(State8080* state, byte r);
