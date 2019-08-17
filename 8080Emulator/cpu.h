@@ -32,3 +32,4 @@ void sub(State8080* state, byte r);
 void sbb(State8080* state, byte r);
 void ana(State8080* state, byte r);
 void xra(State8080* state, byte r);
+void ora(State8080* state, byte r);

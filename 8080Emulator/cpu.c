@@ -908,28 +908,31 @@ byte emulate8080Op(State8080* state)
 			xra(state, state->a);
 			break;
 		case 0xB0:
-			printf("Not implemented!\n");
+			ora(state, state->b);
 			break;
 		case 0xB1:
-			printf("Not implemented!\n");
+			ora(state, state->c);
 			break;
 		case 0xB2:
-			printf("Not implemented!\n");
+			ora(state, state->d);
 			break;
 		case 0xB3:
-			printf("Not implemented!\n");
+			ora(state, state->e);
 			break;
 		case 0xB4:
-			printf("Not implemented!\n");
+			ora(state, state->h);
 			break;
 		case 0xB5:
-			printf("Not implemented!\n");
+			ora(state, state->l);
 			break;
 		case 0xB6:
-			printf("Not implemented!\n");
+			{
+				unsigned short hl = (state->h << 8) | state->l;
+				ora(state, state->memory[hl]);
+			}
 			break;
 		case 0xB7:
-			printf("Not implemented!\n");
+			ora(state, state->a);
 			break;
 		case 0xB8:
 			printf("Not implemented!\n");
@@ -1252,6 +1255,23 @@ void xra(State8080* state, byte r)
 	state->cc.s = (0x80 == (res & 0x80));
 	state->cc.p = pairtyCheck(res, 8);
 	state->cc.cy = 0; //There will never be any carry from the XOR instrucion
+
+	state->a = res;
+}
+
+/*
+	This function will emulate the ORA instruction (OR operator on A with the R register)
+	Input: A pointer to the struct that represents the current state of the CPU, A byte that holds the register value
+*/
+void ora(State8080* state, byte r)
+{
+	//state->cc.ac ???
+	byte res = state->a | r;
+
+	state->cc.z = (0 == res);
+	state->cc.s = (0x80 == (res & 0x80));
+	state->cc.p = pairtyCheck(res, 8);
+	state->cc.cy = 0; //There will never be any carry from the OR instruction
 
 	state->a = res;
 }
