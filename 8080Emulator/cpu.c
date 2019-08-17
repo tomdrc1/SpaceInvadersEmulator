@@ -1166,28 +1166,109 @@ byte emulate8080Op(State8080* state)
 			}
 			break;
 		case 0xA0:
-			printf("Not implemented!\n");
+			{
+				//state->cc.ac ???
+				byte res = state->a & state->b;
+
+				state->cc.z = (0 == res);
+				state->cc.s = (0x80 == (res & 0x80));
+				state->cc.p = pairtyCheck(res, 8);
+				state->cc.cy = 0; //There will never be any carry from the AND instruction
+
+				state->a = res;
+			}
 			break;
 		case 0xA1:
-			printf("Not implemented!\n");
+			{
+				//state->cc.ac ???
+				byte res = state->a & state->c;
+
+				state->cc.z = (0 == res);
+				state->cc.s = (0x80 == (res & 0x80));
+				state->cc.p = pairtyCheck(res, 8);
+				state->cc.cy = 0; //There will never be any carry from the AND instruction
+
+				state->a = res;
+			}
 			break;
 		case 0xA2:
-			printf("Not implemented!\n");
+			{
+				//state->cc.ac ???
+				byte res = state->a & state->d;
+
+				state->cc.z = (0 == res);
+				state->cc.s = (0x80 == (res & 0x80));
+				state->cc.p = pairtyCheck(res, 8);
+				state->cc.cy = 0; //There will never be any carry from the AND instruction
+
+				state->a = res;
+			}
 			break;
 		case 0xA3:
-			printf("Not implemented!\n");
+			{
+				//state->cc.ac ???
+				byte res = state->a & state->e;
+
+				state->cc.z = (0 == res);
+				state->cc.s = (0x80 == (res & 0x80));
+				state->cc.p = pairtyCheck(res, 8);
+				state->cc.cy = 0; //There will never be any carry from the AND instruction
+
+				state->a = res;
+			}
 			break;
 		case 0xA4:
-			printf("Not implemented!\n");
+			{
+				//state->cc.ac ???
+				byte res = state->a & state->h;
+
+				state->cc.z = (0 == res);
+				state->cc.s = (0x80 == (res & 0x80));
+				state->cc.p = pairtyCheck(res, 8);
+				state->cc.cy = 0; //There will never be any carry from the AND instruction
+
+				state->a = res;
+			}
 			break;
 		case 0xA5:
-			printf("Not implemented!\n");
+			{
+				//state->cc.ac ???
+				byte res = state->a & state->l;
+
+				state->cc.z = (0 == res);
+				state->cc.s = (0x80 == (res & 0x80));
+				state->cc.p = pairtyCheck(res, 8);
+				state->cc.cy = 0; //There will never be any carry from the AND instruction
+
+				state->a = res;
+			}
 			break;
 		case 0xA6:
-			printf("Not implemented!\n");
+			{
+				unsigned short hl = (state->h << 8) | state->l;	
+				//state->cc.ac ???
+				byte res = state->a & state->memory[hl];
+
+				state->cc.z = (0 == res);
+				state->cc.s = (0x80 == (res & 0x80));
+				state->cc.p = pairtyCheck(res, 8);
+				state->cc.cy = 0; //There will never be any carry from the AND instruction
+
+				state->a = res;
+			}
 			break;
 		case 0xA7:
-			printf("Not implemented!\n");
+			{
+				//state->cc.ac ???
+				byte res = state->a & state->a;
+
+				state->cc.z = (0 == res);
+				state->cc.s = (0x80 == (res & 0x80));
+				state->cc.p = pairtyCheck(res, 8);
+				state->cc.cy = 0; //There will never be any carry from the AND instruction
+
+				state->a = res;
+			}
 			break;
 		case 0xA8:
 			printf("Not implemented!\n");
