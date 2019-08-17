@@ -1264,31 +1264,71 @@ byte emulate8080Op(State8080* state)
 		case 0xED:
 			break;
 		case 0xEE:
-			printf("Not implemented!\n");
+			xra(state, instruction[1]);
+			state->pc++;
 			break;
 		case 0xEF:
 			printf("Not implemented!\n");
 			break;
 		case 0xF0:
-			printf("Not implemented!\n");
+			if (state->cc.p)
+			{
+				state->pc = (state->memory[state->sp + 1] << 8) | state->memory[state->sp];
+				state->sp += 2;
+			}
 			break;
 		case 0xF1:
-			printf("Not implemented!\n");
+			{
+				byte flags = state->memory[state->sp];
+				state->cc.z = (0x01 == (flags & 0x01));
+				state->cc.s = (0x02 == (flags & 0x02));
+				state->cc.p = (0x04 == (flags & 0x04));
+				state->cc.cy = (0x08 == (flags & 0x08));
+				state->cc.ac = (0x10 == (flags & 0x10));
+
+				state->a = state->memory[state->sp + 1];
+				
+				state->sp += 2;
+			}
 			break;
 		case 0xF2:
-			printf("Not implemented!\n");
+			if (state->cc.p)
+			{
+				state->pc = (instruction[2] << 8) | instruction[1];
+			}
+			else
+			{
+				state->pc += 2;
+			}
 			break;
 		case 0xF3:
 			printf("Not implemented!\n");
 			break;
 		case 0xF4:
-			printf("Not implemented!\n");
+			state->pc += 2;
+
+			if (state->cc.p)
+			{
+				state->memory[state->sp - 1] = (state->pc & 0xFF00) >> 8;
+				state->memory[state->sp - 2] = state->pc & 0x00FF;
+				state->sp -= 2;
+
+				state->pc = (instruction[2] << 8) | instruction[1];
+			}
 			break;
 		case 0xF5:
-			printf("Not implemented!\n");
+			{
+				state->memory[state->sp - 1] = state->a;
+
+				byte flags = (state->cc.z | state->cc.s << 1 | state->cc.p << 2 | state->cc.cy << 3 | state->cc.ac << 4);
+				state->memory[state->sp - 2] = flags;
+
+				state->sp = state->sp - 2;
+			}
 			break;
 		case 0xF6:
-			printf("Not implemented!\n");
+			ora(state, instruction[1]);
+			state->pc++;
 			break;
 		case 0xF7:
 			printf("Not implemented!\n");
@@ -1297,7 +1337,7 @@ byte emulate8080Op(State8080* state)
 			printf("Not implemented!\n");
 			break;
 		case 0xF9:
-			printf("Not implemented!\n");
+			state->sp = (state->h << 8) | state->l;
 			break;
 		case 0xFA:
 			printf("Not implemented!\n");
@@ -1312,7 +1352,8 @@ byte emulate8080Op(State8080* state)
 			printf("Not implemented!\n");
 			break;
 		case 0xFE:
-			printf("Not implemented!\n");
+			cmp(state, instruction[1]);
+			state->pc++;
 			break;
 		case 0xFF:
 			printf("Not implemented!\n");
