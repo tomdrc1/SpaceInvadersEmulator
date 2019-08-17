@@ -1077,15 +1077,13 @@ byte emulate8080Op(State8080* state)
 			}
 			break;
 		case 0xD2:
+			if (!state->cc.cy)
 			{
-				if (!state->cc.cy)
-				{
-					state->pc = (instruction[2] << 8) | instruction[1];
-				}
-				else
-				{
-					state->pc += 2;
-				}
+				state->pc = (instruction[2] << 8) | instruction[1];
+			}
+			else
+			{
+				state->pc += 2;
 			}
 			break;
 		case 0xD3:
@@ -1122,16 +1120,31 @@ byte emulate8080Op(State8080* state)
 			}
 			break;
 		case 0xD9:
-			printf("Not implemented!\n");
 			break;
 		case 0xDA:
-			printf("Not implemented!\n");
+			if (state->cc.cy)
+			{
+				state->pc = (instruction[2] << 8) | instruction[1];
+			}
+			else
+			{
+				state->pc += 2;
+			}
 			break;
 		case 0xDB:
 			printf("Not implemented!\n");
 			break;
 		case 0xDC:
-			printf("Not implemented!\n");
+			state->pc += 2;
+
+			if (state->cc.cy)
+			{
+				state->memory[state->sp - 1] = (state->pc & 0xFF00) >> 8;
+				state->memory[state->sp - 2] = state->pc & 0x00FF;
+				state->sp -= 2;
+				
+				state->pc = (instruction[2] << 8) | instruction[1];
+			}
 			break;
 		case 0xDD:
 			printf("Not implemented!\n");
