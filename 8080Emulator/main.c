@@ -20,6 +20,7 @@
 
 void setupState(State8080* state);
 void readFileToMemory(State8080* state, char* filename, unsigned short offset);
+void dumpMemory(State8080* state);
 
 int main(int argc, char** argv)
 {
@@ -29,11 +30,11 @@ int main(int argc, char** argv)
 	setupState(state);
 	readFileToMemory(state, "test.h", 0);
 	
-	//readFileToMemory(state, "SpaceInvaders.h", 0);
-	//readFileToMemory(state, "SpaceInvaders.g", 0x800);
-	//readFileToMemory(state, "SpaceInvaders.f", 0x1000);
-	//readFileToMemory(state, "SpaceInvaders.e", 0x1800);
-	
+	readFileToMemory(state, "SpaceInvaders.h", 0);
+	readFileToMemory(state, "SpaceInvaders.g", 0x800);
+	readFileToMemory(state, "SpaceInvaders.f", 0x1000);
+	readFileToMemory(state, "SpaceInvaders.e", 0x1800);
+	dumpMemory(state);
 	while (done == 0)
 	{
 		printf("\taBinaryBefore="BYTE_TO_BINARY_PATTERN"\n", BYTE_TO_BINARY(state->a));
@@ -59,7 +60,7 @@ void setupState(State8080* state)
 	state->h = 0;
 	state->l = 0;
 
-	state->sp = 0xffff;
+	state->sp = 0xF000;
 	state->pc = 0;
 
 	state->memory = (byte*)malloc(MEMORY_SIZE);
@@ -89,5 +90,29 @@ void readFileToMemory(State8080* state, char* filename, unsigned short offset)
 
 	byte* buffer = &state->memory[offset];
 	fread(buffer, fsize, 1, f);
+	fclose(f);
+}
+
+void dumpMemory(State8080* state)
+{
+	FILE* f = fopen("log.txt", "w");
+
+	if (f == NULL)
+	{
+		printf("Error opening file!\n");
+		exit(1);
+	}
+
+	int i = 0;
+	for (i = 0; i < MEMORY_SIZE; ++i)
+	{
+		if (i % 16 == 0)
+		{
+			fprintf(f, "\n %d. ", i);
+		}
+		
+		fprintf(f, "%3d ", state->memory[i]);
+	}
+
 	fclose(f);
 }

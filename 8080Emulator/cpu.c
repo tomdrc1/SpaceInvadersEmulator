@@ -36,7 +36,7 @@ byte emulate8080Op(State8080* state)
 		case 0x02:
 			{
 				unsigned short bc = (state->b << 8) | state->c;
-				state->memory[bc] = state->a;
+				writeToMemory(state, bc, state->a);
 			}
 			break;
 		case 0x03:
@@ -154,7 +154,7 @@ byte emulate8080Op(State8080* state)
 		case 0x12:
 			{
 				unsigned short de = (state->d << 8) | state->e;
-				state->memory[de] = state->a;
+				writeToMemory(state, de, state->a);
 			}
 			break;
 		case 0x13:
@@ -278,8 +278,8 @@ byte emulate8080Op(State8080* state)
 		case 0x22:
 			{
 				unsigned short adr = (instruction[2] << 8) | instruction[1];
-				state->memory[adr] = state->l;
-				state->memory[adr + 1] = state->h;
+				writeToMemory(state, adr, state->l);
+				writeToMemory(state, adr + 1, state->h);
 				state->pc += 2;
 			}
 			break;
@@ -410,7 +410,7 @@ byte emulate8080Op(State8080* state)
 		case 0x32:
 			{
 				unsigned short adr = (instruction[2] << 8) | instruction[1];
-				state->memory[adr] = state->a;
+				writeToMemory(state, adr, state->a);
 
 				state->pc += 2;
 			}
@@ -430,7 +430,7 @@ byte emulate8080Op(State8080* state)
 				state->cc.s = (0x80 == (res & 0x80));
 				state->cc.p = pairtyCheck(res, 8);
 
-				state->memory[hl] = res;
+				writeToMemory(state, hl, res);
 			}
 			break;
 		case 0x35:
@@ -445,13 +445,14 @@ byte emulate8080Op(State8080* state)
 				state->cc.s = (0x80 == (res & 0x80));
 				state->cc.p = pairtyCheck(res, 8);
 
-				state->memory[hl] = res;
+				writeToMemory(state, hl, res);
 			}
 			break;
 		case 0x36:
 			{
 				unsigned short hl = (state->h << 8) | state->l;
-				state->memory[hl] = instruction[1];
+				writeToMemory(state, hl, instruction[1]);
+
 				state->pc++;
 			}
 			break;
@@ -678,37 +679,37 @@ byte emulate8080Op(State8080* state)
 		case 0x70:
 			{
 				unsigned short hl = (state->h << 8) | state->l;
-				state->memory[hl] = state->b;
+				writeToMemory(state, hl, state->b);
 			}
 			break;
 		case 0x71:
 			{
 				unsigned short hl = (state->h << 8) | state->l;
-				state->memory[hl] = state->c;
+				writeToMemory(state, hl, state->c);
 			}
 			break;
 		case 0x72:
 			{
 				unsigned short hl = (state->h << 8) | state->l;
-				state->memory[hl] = state->d;
+				writeToMemory(state, hl, state->d);
 			}
 			break;
 		case 0x73:
 			{
 				unsigned short hl = (state->h << 8) | state->l;
-				state->memory[hl] = state->e;
+				writeToMemory(state, hl, state->e);
 			}
 			break;
 		case 0x74:
 			{
 				unsigned short hl = (state->h << 8) | state->l;
-				state->memory[hl] = state->h;
+				writeToMemory(state, hl, state->h);
 			}
 			break;
 		case 0x75:
 			{
 				unsigned short hl = (state->h << 8) | state->l;
-				state->memory[hl] = state->l;
+				writeToMemory(state, hl, state->l);
 			}
 			break;
 		case 0x76:
@@ -717,7 +718,7 @@ byte emulate8080Op(State8080* state)
 		case 0x77:
 			{
 				unsigned short hl = (state->h << 8) | state->l;
-				state->memory[hl] = state->a;
+				writeToMemory(state, hl, state->a);
 			}
 			break;
 		case 0x78:
@@ -971,9 +972,7 @@ byte emulate8080Op(State8080* state)
 			}
 			break;
 		case 0xC1:
-			state->c = state->memory[state->sp];
-			state->b = state->memory[state->sp + 1];
-			state->sp += 2;
+			pop(state, &state->b, &state->c);
 			break;
 		case 0xC2:
 			if (!state->cc.z)
@@ -993,24 +992,21 @@ byte emulate8080Op(State8080* state)
 
 			if (!state->cc.z)
 			{
-				state->memory[state->sp - 1] = ((state->pc & 0xFF00) >> 8);
-				state->memory[state->sp - 2] = (state->pc & 0x00FF);
-				state->sp -= 2;
-
+				push(state, (state->pc & 0xFF00) << 8, state->pc & 0x00FF);
 				state->pc = (instruction[2] << 8) | instruction[1];
 			}
 			break;
 		case 0xC5:
-			state->memory[state->sp - 2] = state->c;
-			state->memory[state->sp - 1] = state->b;
-			state->sp -= 2;
+			push(state, state->b, state->c);
 			break;
 		case 0xC6:
 			add(state, instruction[1]);
 			state->pc++;
 			break;
 		case 0xC7:
-			printf("Not implemented!\n");
+			state->pc += 2;
+			push(state, (state->pc & 0xFF00) >> 8, state->pc & 0x00FF);
+			state->pc = 0;
 			break;
 		case 0xC8:
 			if (state->cc.z)
@@ -1040,20 +1036,14 @@ byte emulate8080Op(State8080* state)
 
 			if (state->cc.z)
 			{
-				state->memory[state->sp - 1] = ((state->pc & 0xFF00) >> 8);
-				state->memory[state->sp - 2] = (state->pc & 0x00FF);
-				state->sp -= 2;
-
+				push(state, (state->pc & 0xFF00) << 8, state->pc & 0x00FF);
 				state->pc = (instruction[2] << 8) | instruction[1];
 			}
 			break;
 		case 0xCD:
 			state->pc += 2;
 
-			state->memory[state->sp - 1] = ((state->pc & 0xFF00) >> 8);
-			state->memory[state->sp - 2] = (state->pc & 0x00FF);
-			state->sp -= 2;
-
+			push(state, (state->pc & 0xFF00) << 8, state->pc & 0x00FF);
 			state->pc = (instruction[2] << 8) | instruction[1];
 			break;
 		case 0xCE:
@@ -1061,7 +1051,9 @@ byte emulate8080Op(State8080* state)
 			state->pc++;
 			break;
 		case 0xCF:
-			printf("Not implemented!\n");
+			state->pc += 2;
+			push(state, (state->pc & 0xFF00) >> 8, state->pc & 0x00FF);
+			state->pc = 0x08;
 			break;
 		case 0xD0:
 			if (!state->cc.cy)
@@ -1071,11 +1063,7 @@ byte emulate8080Op(State8080* state)
 			}
 			break;
 		case 0xD1:
-			{
-				state->e = state->memory[state->sp];
-				state->d = state->memory[state->sp + 1];
-				state->sp += 2;
-			}
+			pop(state, &state->d, &state->e);
 			break;
 		case 0xD2:
 			if (!state->cc.cy)
@@ -1096,25 +1084,21 @@ byte emulate8080Op(State8080* state)
 
 			if (!state->cc.cy)
 			{
-				state->memory[state->sp - 1] = (state->pc & 0xFF00) >> 8;
-				state->memory[state->sp - 2] = state->pc & 0x00FF;
-				state->sp -= 2;
-
+				push(state, (state->pc & 0xFF00) << 8, state->pc & 0x00FF);
 				state->pc = (instruction[2] << 8) | instruction[1];
 			}
 			break;
 		case 0xD5:
-			state->memory[state->sp - 1] = state->d;
-			state->memory[state->sp - 2] = state->e;
-
-			state->sp -= 2;
+			push(state, state->d, state->e);
 			break;
 		case 0xD6:
 			sub(state, instruction[1]);
 			state->pc++;
 			break;
 		case 0xD7:
-			printf("Not implemented!\n");
+			state->pc += 2;
+			push(state, (state->pc & 0xFF00) >> 8, state->pc & 0x00FF);
+			state->pc = 0x10;
 			break;
 		case 0xD8:
 			if (state->cc.cy)
@@ -1144,10 +1128,7 @@ byte emulate8080Op(State8080* state)
 
 			if (state->cc.cy)
 			{
-				state->memory[state->sp - 1] = (state->pc & 0xFF00) >> 8;
-				state->memory[state->sp - 2] = state->pc & 0x00FF;
-				state->sp -= 2;
-				
+				push(state, (state->pc & 0xFF00) << 8, state->pc & 0x00FF);
 				state->pc = (instruction[2] << 8) | instruction[1];
 			}
 			break;
@@ -1158,7 +1139,9 @@ byte emulate8080Op(State8080* state)
 			state->pc++;
 			break;
 		case 0xDF:
-			printf("Not implemented!\n");
+			state->pc += 2;
+			push(state, (state->pc & 0xFF00) >> 8, state->pc & 0x00FF);
+			state->pc = 0x18;
 			break;
 		case 0xE0:
 			if (!state->cc.p) //Pairty Odd
@@ -1168,9 +1151,7 @@ byte emulate8080Op(State8080* state)
 			}
 			break;
 		case 0xE1:
-			state->l = state->memory[state->sp];
-			state->h = state->memory[state->sp + 1];
-			state->sp += 2;
+			pop(state, &state->h, &state->l);
 			break;
 		case 0xE2:
 			if (!state->cc.p) //Pairty Odd
@@ -1199,25 +1180,21 @@ byte emulate8080Op(State8080* state)
 
 			if (!state->cc.p) //Parity Odd
 			{
-				state->memory[state->sp - 1] = (state->pc & 0xFF00) >> 8;
-				state->memory[state->sp - 2] = state->pc & 0x00FF;
-				state->sp -= 2;
-
+				push(state, (state->pc & 0xFF00) << 8, state->pc & 0x00FF);
 				state->pc = (instruction[2] << 8) | instruction[1];
 			}
 			break;
 		case 0xE5:
-			state->memory[state->sp - 1] = state->h;
-			state->memory[state->sp - 2] = state->l;
-
-			state->sp -= 2;
+			push(state, state->h, state->l);
 			break;
 		case 0xE6:
 			ana(state, instruction[1]);
 			state->pc++;
 			break;
 		case 0xE7:
-			printf("Not implemented!\n");
+			state->pc += 2;
+			push(state, (state->pc & 0xFF00) >> 8, state->pc & 0x00FF);
+			state->pc = 0x20;
 			break;
 		case 0xE8:
 			if (state->cc.p) //Parity Even
@@ -1256,10 +1233,7 @@ byte emulate8080Op(State8080* state)
 
 			if (state->cc.p) //Parity Even
 			{
-				state->memory[state->sp - 1] = (state->pc & 0xFF00) >> 8;
-				state->memory[state->sp - 2] = state->pc & 0x00FF;
-				state->sp -= 2;
-
+				push(state, (state->pc & 0xFF00) << 8, state->pc & 0x00FF);
 				state->pc = (instruction[2] << 8) | instruction[1];
 			}
 			break;
@@ -1270,10 +1244,12 @@ byte emulate8080Op(State8080* state)
 			state->pc++;
 			break;
 		case 0xEF:
-			printf("Not implemented!\n");
+			state->pc += 2;
+			push(state, (state->pc & 0xFF00) >> 8, state->pc & 0x00FF);
+			state->pc = 0x28;
 			break;
 		case 0xF0:
-			if (state->cc.p)
+			if (!state->cc.s)
 			{
 				state->pc = (state->memory[state->sp + 1] << 8) | state->memory[state->sp];
 				state->sp += 2;
@@ -1294,7 +1270,7 @@ byte emulate8080Op(State8080* state)
 			}
 			break;
 		case 0xF2:
-			if (state->cc.p)
+			if (!state->cc.s)
 			{
 				state->pc = (instruction[2] << 8) | instruction[1];
 			}
@@ -1309,23 +1285,16 @@ byte emulate8080Op(State8080* state)
 		case 0xF4:
 			state->pc += 2;
 
-			if (state->cc.p)
+			if (!state->cc.s)
 			{
-				state->memory[state->sp - 1] = (state->pc & 0xFF00) >> 8;
-				state->memory[state->sp - 2] = state->pc & 0x00FF;
-				state->sp -= 2;
-
+				push(state, (state->pc & 0xFF00) << 8, state->pc & 0x00FF);
 				state->pc = (instruction[2] << 8) | instruction[1];
 			}
 			break;
 		case 0xF5:
 			{
-				state->memory[state->sp - 1] = state->a;
-
-				byte flags = (state->cc.z | state->cc.s << 1 | state->cc.p << 2 | state->cc.cy << 3 | state->cc.ac << 4);
-				state->memory[state->sp - 2] = flags;
-
-				state->sp = state->sp - 2;
+				byte flags = (state->cc.z | state->cc.s << 1 | state->cc.p << 2 | state->cc.cy << 3 | state->cc.ac << 4);	
+				push(state, state->a, flags);
 			}
 			break;
 		case 0xF6:
@@ -1333,7 +1302,9 @@ byte emulate8080Op(State8080* state)
 			state->pc++;
 			break;
 		case 0xF7:
-			printf("Not implemented!\n");
+			state->pc += 2;
+			push(state, (state->pc & 0xFF00) >> 8, state->pc & 0x00FF);
+			state->pc = 0x30;
 			break;
 		case 0xF8:
 			if (state->cc.s)
@@ -1363,10 +1334,7 @@ byte emulate8080Op(State8080* state)
 
 			if (state->cc.s)
 			{
-				state->memory[state->sp - 1] = (state->pc & 0xFF00) >> 8;
-				state->memory[state->sp - 2] = state->pc & 0x00FF;
-				state->sp -= 2;
-
+				push(state, (state->pc & 0xFF00) << 8, state->pc & 0x00FF);
 				state->pc = (instruction[2] << 8) | instruction[1];
 			}
 			break;
@@ -1377,7 +1345,9 @@ byte emulate8080Op(State8080* state)
 			state->pc++;
 			break;
 		case 0xFF:
-			printf("Not implemented!\n");
+			state->pc += 2;
+			push(state, (state->pc & 0xFF00) >> 8, state->pc & 0x00FF);
+			state->pc = 0x38;
 			break;
 	}
 
@@ -1516,5 +1486,36 @@ void cmp(State8080* state, byte r)
 	state->cc.s = (0x80 == (res & 0x80));
 	state->cc.p = pairtyCheck(res, 8);
 	state->cc.cy = ((res & 0xFF00) != 0);
+}
+
+void push(State8080* state, byte high, byte low)
+{
+	writeToMemory(state, state->sp - 1, high);
+	writeToMemory(state, state->sp - 2, low);
+	state->sp -= 2;
+}
+
+void pop(State8080* state, byte* high, byte* low)
+{
+	*low = state->memory[state->sp];
+	*high = state->memory[state->sp + 1];
+
+	state->sp += 2;
+}
+
+void writeToMemory(State8080* state, unsigned short adr, byte value)
+{
+	if (adr < 0x2000)
+	{
+		printf("Writing ROM not allowed %x\n", adr);
+		return;
+	}
+	if (adr >= 0x4000)
+	{
+		printf("Writing out of Space Invaders RAM not allowed! %x\n", adr);
+		return;
+	}
+	
+	state->memory[adr] = value;
 }
 

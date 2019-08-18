@@ -34,4 +34,7 @@ void ana(State8080* state, byte r);
 void xra(State8080* state, byte r);
 void ora(State8080* state, byte r);
 void cmp(State8080* state, byte r);
+void push(State8080* state, byte high, byte low);
+void pop(State8080* state, byte* high, byte* low);
+void writeToMemory(State8080* state, unsigned short adr, byte value);
 void generateInterrupt(State8080* state, int interrupt_num);
