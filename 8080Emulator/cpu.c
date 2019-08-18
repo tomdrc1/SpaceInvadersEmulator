@@ -1519,3 +1519,11 @@ void writeToMemory(State8080* state, unsigned short adr, byte value)
 	state->memory[adr] = value;
 }
 
+void generateInterrupt(State8080* state, int interrupt_num)
+{
+	push(state, (state->pc & 0xFF00) >> 8, state->pc & 0x00FF);
+
+	state->pc = 8 * interrupt_num;
+	state->int_enable = 0;
+}
+
