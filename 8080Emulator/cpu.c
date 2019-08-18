@@ -1075,10 +1075,6 @@ byte emulate8080Op(State8080* state)
 				state->pc += 2;
 			}
 			break;
-		case 0xD3:
-			printf("OUT");
-			state->pc++;
-			break;
 		case 0xD4:
 			state->pc += 2;
 
@@ -1118,10 +1114,6 @@ byte emulate8080Op(State8080* state)
 			{
 				state->pc += 2;
 			}
-			break;
-		case 0xDB:
-			printf("IN");
-			state->pc++;
 			break;
 		case 0xDC:
 			state->pc += 2;

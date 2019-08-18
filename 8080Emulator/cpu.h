@@ -1,3 +1,4 @@
+#pragma once
 typedef unsigned char byte;
 
 typedef struct ConditionCodes {
@@ -23,6 +24,9 @@ typedef struct State8080 {
 	ConditionCodes cc;
 	byte int_enable;
 } State8080;
+
+
+#define TEST 1
 
 byte pairtyCheck(byte num, byte size);
 byte emulate8080Op(State8080* state);
