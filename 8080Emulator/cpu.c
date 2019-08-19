@@ -22,6 +22,7 @@ byte emulate8080Op(State8080* state)
 {
 	byte* instruction = &state->memory[state->pc];
 
+	state->cycles += OPCODES_CYCLES[*instruction];
 	state->pc++;
 
 	switch (instruction[0])
@@ -965,36 +966,19 @@ byte emulate8080Op(State8080* state)
 			cmp(state, state->a);
 			break;
 		case 0xC0:
-			if (!state->cc.z)
-			{
-				state->pc = (state->memory[state->sp + 1] << 8) | state->memory[state->sp];
-				state->sp += 2;
-			}
+			retConditional(state, !state->cc.z);
 			break;
 		case 0xC1:
 			pop(state, &state->b, &state->c);
 			break;
 		case 0xC2:
-			if (!state->cc.z)
-			{
-				state->pc = (instruction[2] << 8) | instruction[1];
-			}
-			else
-			{
-				state->pc += 2;
-			}
+			jmpConditional(state, !state->cc.z, (instruction[2] << 8) | instruction[1]);
 			break;
 		case 0xC3:
 			state->pc = (instruction[2] << 8) | instruction[1];
 			break;
 		case 0xC4:
-			state->pc += 2;
-
-			if (!state->cc.z)
-			{
-				push(state, (state->pc & 0xFF00) << 8, state->pc & 0x00FF);
-				state->pc = (instruction[2] << 8) | instruction[1];
-			}
+			callConditional(state, !state->cc.z, (instruction[2] << 8) | instruction[1]);
 			break;
 		case 0xC5:
 			push(state, state->b, state->c);
@@ -1009,41 +993,24 @@ byte emulate8080Op(State8080* state)
 			state->pc = 0;
 			break;
 		case 0xC8:
-			if (state->cc.z)
-			{
-				state->pc = (state->memory[state->sp + 1] << 8) | state->memory[state->sp];
-				state->sp += 2;
-			}
+			retConditional(state, state->cc.z);
 			break;
 		case 0xC9:
 			state->pc = (state->memory[state->sp + 1] << 8) | state->memory[state->sp];
 			state->sp += 2;
 			break;
 		case 0xCA:
-			if (state->cc.z)
-			{
-				state->pc = (instruction[2] << 8) | instruction[1];
-			}
-			else
-			{
-				state->pc += 2;
-			}
+			jmpConditional(state, state->cc.z, (instruction[2] << 8) | instruction[1]);
 			break;
 		case 0xCB:
 			break;
 		case 0xCC:
-			state->pc += 2;
-
-			if (state->cc.z)
-			{
-				push(state, (state->pc & 0xFF00) << 8, state->pc & 0x00FF);
-				state->pc = (instruction[2] << 8) | instruction[1];
-			}
+			callConditional(state, state->cc.z, (instruction[2] << 8) | instruction[1]);
 			break;
 		case 0xCD:
 			state->pc += 2;
 
-			push(state, (state->pc & 0xFF00) << 8, state->pc & 0x00FF);
+			push(state, (state->pc & 0xFF00) >> 8, state->pc & 0x00FF);
 			state->pc = (instruction[2] << 8) | instruction[1];
 			break;
 		case 0xCE:
@@ -1056,33 +1023,16 @@ byte emulate8080Op(State8080* state)
 			state->pc = 0x08;
 			break;
 		case 0xD0:
-			if (!state->cc.cy)
-			{
-				state->pc = (state->memory[state->sp + 1] << 8) | state->memory[state->sp];
-				state->sp += 2;
-			}
+			retConditional(state, !state->cc.cy);
 			break;
 		case 0xD1:
 			pop(state, &state->d, &state->e);
 			break;
 		case 0xD2:
-			if (!state->cc.cy)
-			{
-				state->pc = (instruction[2] << 8) | instruction[1];
-			}
-			else
-			{
-				state->pc += 2;
-			}
+			jmpConditional(state, !state->cc.cy, (instruction[2] << 8) | instruction[1]);
 			break;
 		case 0xD4:
-			state->pc += 2;
-
-			if (!state->cc.cy)
-			{
-				push(state, (state->pc & 0xFF00) << 8, state->pc & 0x00FF);
-				state->pc = (instruction[2] << 8) | instruction[1];
-			}
+			callConditional(state, !state->cc.cy, (instruction[2] << 8) | instruction[1]);
 			break;
 		case 0xD5:
 			push(state, state->d, state->e);
@@ -1097,32 +1047,15 @@ byte emulate8080Op(State8080* state)
 			state->pc = 0x10;
 			break;
 		case 0xD8:
-			if (state->cc.cy)
-			{
-				state->pc = (state->memory[state->sp + 1] << 8) | state->memory[state->sp];
-				state->sp += 2;
-			}
+			retConditional(state, state->cc.cy);
 			break;
 		case 0xD9:
 			break;
 		case 0xDA:
-			if (state->cc.cy)
-			{
-				state->pc = (instruction[2] << 8) | instruction[1];
-			}
-			else
-			{
-				state->pc += 2;
-			}
+			jmpConditional(state, state->cc.cy, (instruction[2] << 8) | instruction[1]);
 			break;
 		case 0xDC:
-			state->pc += 2;
-
-			if (state->cc.cy)
-			{
-				push(state, (state->pc & 0xFF00) << 8, state->pc & 0x00FF);
-				state->pc = (instruction[2] << 8) | instruction[1];
-			}
+			callConditional(state, state->cc.cy, (instruction[2] << 8) | instruction[1]);
 			break;
 		case 0xDD:
 			break;
@@ -1136,24 +1069,13 @@ byte emulate8080Op(State8080* state)
 			state->pc = 0x18;
 			break;
 		case 0xE0:
-			if (!state->cc.p) //Pairty Odd
-			{
-				state->pc = (state->memory[state->sp + 1] << 8) | state->memory[state->sp];
-				state->sp += 2;
-			}
+			retConditional(state, !state->cc.p);
 			break;
 		case 0xE1:
 			pop(state, &state->h, &state->l);
 			break;
 		case 0xE2:
-			if (!state->cc.p) //Pairty Odd
-			{
-				state->pc = (instruction[2] << 8) | instruction[1];
-			}
-			else
-			{
-				state->pc += 2;
-			}
+			jmpConditional(state, !state->cc.p, (instruction[2] << 8) | instruction[1]);
 			break;
 		case 0xE3:
 			{
@@ -1168,13 +1090,7 @@ byte emulate8080Op(State8080* state)
 			}
 			break;
 		case 0xE4:
-			state->pc += 2;
-
-			if (!state->cc.p) //Parity Odd
-			{
-				push(state, (state->pc & 0xFF00) << 8, state->pc & 0x00FF);
-				state->pc = (instruction[2] << 8) | instruction[1];
-			}
+			callConditional(state, !state->cc.p, (instruction[2] << 8) | instruction[1]);
 			break;
 		case 0xE5:
 			push(state, state->h, state->l);
@@ -1189,24 +1105,13 @@ byte emulate8080Op(State8080* state)
 			state->pc = 0x20;
 			break;
 		case 0xE8:
-			if (state->cc.p) //Parity Even
-			{
-				state->pc = (state->memory[state->sp + 1] << 8) | state->memory[state->sp];
-				state->sp += 2;
-			}
+			retConditional(state, state->cc.p);
 			break;
 		case 0xE9:
 			state->pc = (state->h << 8) | state->l;
 			break;
 		case 0xEA:
-			if (state->cc.p) //Parity Even
-			{
-				state->pc = (instruction[2] << 8) | instruction[1];
-			}
-			else
-			{
-				state->pc += 2;
-			}
+			jmpConditional(state, state->cc.p, (instruction[2] << 8) | instruction[1]);
 			break;
 		case 0xEB:
 			{
@@ -1221,13 +1126,7 @@ byte emulate8080Op(State8080* state)
 			}
 			break;
 		case 0xEC:
-			state->pc += 2;
-
-			if (state->cc.p) //Parity Even
-			{
-				push(state, (state->pc & 0xFF00) << 8, state->pc & 0x00FF);
-				state->pc = (instruction[2] << 8) | instruction[1];
-			}
+			callConditional(state, state->cc.p, (instruction[2] << 8) | instruction[1]);
 			break;
 		case 0xED:
 			break;
@@ -1241,36 +1140,19 @@ byte emulate8080Op(State8080* state)
 			state->pc = 0x28;
 			break;
 		case 0xF0:
-			if (!state->cc.s)
-			{
-				state->pc = (state->memory[state->sp + 1] << 8) | state->memory[state->sp];
-				state->sp += 2;
-			}
+			retConditional(state, !state->cc.s);
 			break;
 		case 0xF1:
 			pop(state, &state->a, (byte*)&state->cc);
 			break;
 		case 0xF2:
-			if (!state->cc.s)
-			{
-				state->pc = (instruction[2] << 8) | instruction[1];
-			}
-			else
-			{
-				state->pc += 2;
-			}
+			jmpConditional(state, !state->cc.s, (instruction[2] << 8) | instruction[1]);
 			break;
 		case 0xF3:
 			state->int_enable = 0;
 			break;
 		case 0xF4:
-			state->pc += 2;
-
-			if (!state->cc.s)
-			{
-				push(state, (state->pc & 0xFF00) << 8, state->pc & 0x00FF);
-				state->pc = (instruction[2] << 8) | instruction[1];
-			}
+			callConditional(state, !state->cc.s, (instruction[2] << 8) | instruction[1]);
 			break;
 		case 0xF5:
 			push(state, state->a, *(byte*)&state->cc);
@@ -1285,36 +1167,19 @@ byte emulate8080Op(State8080* state)
 			state->pc = 0x30;
 			break;
 		case 0xF8:
-			if (state->cc.s)
-			{
-				state->pc = (state->memory[state->sp + 1] << 8) | state->memory[state->sp];
-				state->sp += 2;
-			}
+			retConditional(state, state->cc.s);
 			break;
 		case 0xF9:
 			state->sp = (state->h << 8) | state->l;
 			break;
 		case 0xFA:
-			if (state->cc.s)
-			{
-				state->pc = (instruction[2] << 8) | instruction[1];
-			}
-			else
-			{
-				state->pc += 2;
-			}
+			jmpConditional(state, state->cc.s, (instruction[2] << 8) | instruction[1]);
 			break;
 		case 0xFB:
 			state->int_enable = 1;
 			break;
 		case 0xFC:
-			state->pc += 2;
-
-			if (state->cc.s)
-			{
-				push(state, (state->pc & 0xFF00) << 8, state->pc & 0x00FF);
-				state->pc = (instruction[2] << 8) | instruction[1];
-			}
+			callConditional(state, state->cc.s, (instruction[2] << 8) | instruction[1]);
 			break;
 		case 0xFD:
 			break;
@@ -1481,6 +1346,40 @@ void pop(State8080* state, byte* high, byte* low)
 	state->sp += 2;
 }
 
+void retConditional(State8080* state, byte Conditional)
+{
+	if (Conditional)
+	{
+		state->pc = (state->memory[state->sp + 1] << 8) | state->memory[state->sp];
+		state->sp += 2;
+		state->cycles += 6;
+	}
+}
+
+void callConditional(State8080* state, byte Conditional, unsigned short adr)
+{
+	state->pc += 2;
+
+	if (Conditional)
+	{
+		push(state, (state->pc & 0xFF00) >> 8, state->pc & 0x00FF);
+		state->pc = adr;
+		state->cycles += 6;
+	}
+}
+
+void jmpConditional(State8080* state, byte Conditional, unsigned short adr)
+{
+	if (Conditional)
+	{
+		state->pc = adr;
+	}
+	else
+	{
+		state->pc += 2;
+	}
+}
+
 void writeToMemory(State8080* state, unsigned short adr, byte value)
 {
 	if (adr < 0x2000)
@@ -1488,16 +1387,18 @@ void writeToMemory(State8080* state, unsigned short adr, byte value)
 		printf("Writing ROM not allowed %x\n", adr);
 		return;
 	}
-	if (adr >= 0x4000)
-	{
-		printf("Writing out of Space Invaders RAM not allowed! %x\n", adr);
-		return;
+	
+	if (adr >= 0x4000 && adr < 0x6000) 
+	{ 
+		printf("\tpc=%x, sp=%x, a=%x, b=%x, c=%x, d=%x, e=%x, h=%x, l=%x, m=%x, bc=%x, de=%x, hl=%x\n", state->pc - 1, state->sp, state->a, state->b, state->c, state->d, state->e, state->h, state->l, state->memory[(state->h << 8) | state->l], (state->b << 8) | state->c, (state->d << 8) | state->e, (state->h << 8) | state->l);
+		printf("\tz=%d, s=%d, p=%d, cy=%d, ac=%d, int_enabled=%d cycles=%d\n", state->cc.z, state->cc.s, state->cc.p, state->cc.cy, state->cc.ac, state->int_enable, state->cycles);
+		adr -= 0x2000;
 	}
 	
 	state->memory[adr] = value;
 }
 
-void generateInterrupt(State8080* state, int interrupt_num)
+void generateInterrupt(State8080* state, byte interrupt_num)
 {
 	push(state, (state->pc & 0xFF00) >> 8, state->pc & 0x00FF);
 

@@ -10,6 +10,8 @@
 
 #define MEMORY_SIZE 0x10000 //16K
 
+#define CYCLES_PER_FRAME 2000000 / 60
+
 typedef struct spaceInvaderMachine
 {
 	State8080* state;
@@ -19,12 +21,16 @@ typedef struct spaceInvaderMachine
 	SDL_Window* screen;
 	SDL_Renderer* renderer;
 	SDL_Event sdlEvent;
+	byte which_int;
 } spaceInvaderMachine;
 
 void startEmulation(spaceInvaderMachine* machine);
 void setupState(State8080* state);
+void setupMachine(spaceInvaderMachine* machine);
 void readFileToMemory(State8080* state, char* filename, unsigned short offset);
+void machineUpdate(spaceInvaderMachine* machine, FILE* f);
 int Disassemble8080Op(unsigned char* codebuffer, int pc, FILE* f);
 byte machineIn(spaceInvaderMachine* machine, byte port);
 void machineOut(spaceInvaderMachine* machine, byte port, byte value);
 void draw(spaceInvaderMachine* state);
+void dumpMemory(State8080* state);

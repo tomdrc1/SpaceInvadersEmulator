@@ -1,12 +1,11 @@
 #include "machine.h"
-#include "cpu.h"
 
 void startEmulation(spaceInvaderMachine* machine)
 {
 	machine->state = (State8080*)malloc(sizeof(State8080));
 	int done = 0;
-
-	setupState(machine->state);
+	FILE* logFile = fopen("data.log", "w");
+	setupMachine(machine);
 	//readFileToMemory(state, "test.h", 0);
 
 	readFileToMemory(machine->state, "SpaceInvaders.h", 0);
@@ -14,49 +13,23 @@ void startEmulation(spaceInvaderMachine* machine)
 	readFileToMemory(machine->state, "SpaceInvaders.f", 0x1000);
 	readFileToMemory(machine->state, "SpaceInvaders.e", 0x1800);
 
-	clock_t lastInterrupt = clock() / CLOCKS_PER_SEC;
-
+	unsigned int timer = SDL_GetTicks();
+	
 	while (!done)
 	{
-		byte* instruction = &machine->state->memory[machine->state->pc];
-
 		if (SDL_PollEvent(&machine->sdlEvent) && machine->sdlEvent.type == SDL_QUIT)
 		{
 			exit(0);
 		}
 
-		if (*instruction == 0xdb) //machine specific handling for IN    
+		if (SDL_GetTicks() - timer > (1.f / 60))
 		{
-			byte port = instruction[1];
-			machine->state->a = machineIn(machine->state, port);
-			machine->state->pc += 2;
-		}
-		else if (*instruction == 0xd3)  //OUT    
-		{
-			byte port = instruction[1];
-			machineOut(machine, port, machine->state->a);
-			machine->state->pc += 2;
-		}
-		else
-		{
-			done = emulate8080Op(machine->state);
-		}
-		printf("\tpc=%d, sp=%d, a=%d, b=%d, c=%d, d=%d, e=%d, h=%d, l=%d, m=%d, bc=%d, de=%d, hl=%d\n", machine->state->pc, machine->state->sp, machine->state->a, machine->state->b, machine->state->c, machine->state->d, machine->state->e, machine->state->h, machine->state->l, machine->state->memory[(machine->state->h << 8) | machine->state->l],  (machine->state->b << 8) | machine->state->c,  (machine->state->d << 8) | machine->state->e,  (machine->state->h << 8) | machine->state->l);
-		printf("\tz=%d, s=%d, p=%d, cy=%d, ac=%d, int_enabled=%d\n", machine->state->cc.z, machine->state->cc.s, machine->state->cc.p, machine->state->cc.cy, machine->state->cc.ac, machine->state->int_enable);
-
-		if ((((float)clock() / CLOCKS_PER_SEC) - lastInterrupt) > (1.0 / 60.0))
-		{
-			if (machine->state->int_enable)
-			{
-				generateInterrupt(machine->state, 2);
-				lastInterrupt = (float)clock() / CLOCKS_PER_SEC;
-			}
-
+			timer = SDL_GetTicks();
+			machineUpdate(machine, logFile);
 			draw(machine);
 		}
-		//system("PAUSE");
 	}
-
+	fclose(logFile);
 	free(machine->state->memory);
 	free(machine->state);
 }
@@ -86,6 +59,15 @@ void setupState(State8080* state)
 	state->cc.pad2 = 0;
 	state->cc.pad3 = 0;
 	state->int_enable = 1;
+	state->cycles = 0;
+}
+
+void setupMachine(spaceInvaderMachine* machine)
+{
+	setupState(machine->state);
+	machine->shift_offset = 0;
+	machine->xy = 0;
+	machine->which_int = 0x01;
 }
 
 void readFileToMemory(State8080* state, char* filename, unsigned short offset)
@@ -105,6 +87,47 @@ void readFileToMemory(State8080* state, char* filename, unsigned short offset)
 	byte* buffer = &state->memory[offset];
 	fread(buffer, fsize, 1, f);
 	fclose(f);
+}
+
+void machineUpdate(spaceInvaderMachine* machine, FILE* f)
+{
+	unsigned int cyclesCount = 0;
+
+	while (cyclesCount <= CYCLES_PER_FRAME)
+	{
+		unsigned int startCycle = machine->state->cycles;
+		byte* instruction = &machine->state->memory[machine->state->pc];
+		
+		emulate8080Op(machine->state);
+		cyclesCount += machine->state->cycles - startCycle;
+
+		if (*instruction == 0xdb) //machine specific handling for IN    
+		{
+			byte port = instruction[1];
+			machine->state->a = machineIn(machine->state, port);
+			machine->state->pc++;
+		}
+		else if (*instruction == 0xd3)  //OUT    
+		{
+			byte port = instruction[1];
+			machineOut(machine, port, machine->state->a);
+			machine->state->pc++;
+		}
+
+		if (machine->state->cycles >= (CYCLES_PER_FRAME / 2) && machine->state->int_enable)
+		{
+			generateInterrupt(machine->state, machine->which_int);
+			machine->state->cycles -= (CYCLES_PER_FRAME / 2);
+			machine->which_int = (machine->which_int == 0x01 ? 0x02 : 0x01);
+			//draw(machine);
+			//dumpMemory(machine->state);
+		}
+
+		//fprintf(f, "\tpc=%x, sp=%x, a=%d, b=%d, c=%d, d=%d, e=%d, h=%d, l=%d, m=%d, bc=%d, de=%d, hl=%d\n", machine->state->pc, machine->state->sp, machine->state->a, machine->state->b, machine->state->c, machine->state->d, machine->state->e, machine->state->h, machine->state->l, machine->state->memory[(machine->state->h << 8) | machine->state->l], (machine->state->b << 8) | machine->state->c, (machine->state->d << 8) | machine->state->e, (machine->state->h << 8) | machine->state->l);
+		//fprintf(f, "\tz=%d, s=%d, p=%d, cy=%d, ac=%d, int_enabled=%d cycles=%d\n", machine->state->cc.z, machine->state->cc.s, machine->state->cc.p, machine->state->cc.cy, machine->state->cc.ac, machine->state->int_enable, machine->state->cycles);
+	}
+
+	//system("PAUSE");
 }
 
 int Disassemble8080Op(unsigned char* codebuffer, int pc, FILE* f)
@@ -414,7 +437,7 @@ void machineOut(spaceInvaderMachine* machine, byte port, byte value)
 		machine->shift_offset = (value & 0x07);
 		break;
 	case 4:
-		machine->xy >>= 8;
+		machine->xy = (machine->xy >> 8) & 0x00FF;
 		machine->xy |= (value << 8);
 	}
 }
@@ -426,6 +449,8 @@ void machineOut(spaceInvaderMachine* machine, byte port, byte value)
 void draw(spaceInvaderMachine* machine)
 {
 	int i = 0;
+	
+	SDL_RenderClear(machine->state);
 	for (i = 0; i < 256 * 224 / 8; i++)
 	{
 		byte currentByte = machine->state->memory[0x2400 + i];
@@ -433,15 +458,45 @@ void draw(spaceInvaderMachine* machine)
 		int p = 0;
 		for (p = 7; p >= 0; --p)
 		{
+			int index = (i * 8) + p;
+			int x = index % 256;
+			int y = index / 256;
+
 			if ((currentByte >> p) & 0x01)
 			{
-				int index = (i * 8) + p;
-				int x = index % 256;
-				int y = index / 256;
-				SDL_RenderDrawPoint(machine->renderer, y, 256 - x);
+				SDL_SetRenderDrawColor(machine->renderer, 255, 255, 255, 255);	
 			}
+			else
+			{
+				SDL_SetRenderDrawColor(machine->renderer, 0, 0, 0, 0);
+			}
+			SDL_RenderDrawPoint(machine->renderer, y, 256 - x);
 		}
 	}
 	
 	SDL_RenderPresent(machine->renderer);
+}
+
+void dumpMemory(State8080* state)
+{
+	FILE* f = fopen("log.txt", "w");
+
+	if (!f)
+	{
+		printf("Error opening file!\n");
+		return;
+	}
+
+	int i = 0;
+	for (i = 0; i < MEMORY_SIZE; ++i)
+	{
+		if (i % 16 == 0)
+		{
+			fprintf(f, "\n %x. ", i);
+		}
+
+		fprintf(f, "%3x ", state->memory[i]);
+	}
+
+	fclose(f);
 }
