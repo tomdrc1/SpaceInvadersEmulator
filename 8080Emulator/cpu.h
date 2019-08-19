@@ -2,12 +2,14 @@
 typedef unsigned char byte;
 
 typedef struct ConditionCodes {
+	byte cy : 1;
+	byte pad1 : 1;
+	byte p : 1;
+	byte pad2 : 1;
+	byte ac : 1;
+	byte pad3 : 1;
 	byte z : 1;
 	byte s : 1;
-	byte p : 1;
-	byte cy : 1;
-	byte ac : 1;
-	byte pad : 3;
 } ConditionCodes;
 
 typedef struct State8080 {

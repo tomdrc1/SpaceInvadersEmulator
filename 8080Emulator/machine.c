@@ -49,7 +49,6 @@ void startEmulation(spaceInvaderMachine* machine)
 			if (machine->state->int_enable)
 			{
 				generateInterrupt(machine->state, 2);
-
 				lastInterrupt = (float)clock() / CLOCKS_PER_SEC;
 			}
 
@@ -78,12 +77,14 @@ void setupState(State8080* state)
 	state->memory = (byte*)malloc(MEMORY_SIZE);
 	memset(state->memory, NULL, MEMORY_SIZE);
 
-	state->cc.z = 1;
+	state->cc.z = 0;
 	state->cc.s = 0;
-	state->cc.p = 1;
+	state->cc.p = 0;
 	state->cc.cy = 0;
-	state->cc.ac = 1;
-	state->cc.pad = 0;
+	state->cc.ac = 0;
+	state->cc.pad1 = 1;
+	state->cc.pad2 = 0;
+	state->cc.pad3 = 0;
 	state->int_enable = 1;
 }
 
