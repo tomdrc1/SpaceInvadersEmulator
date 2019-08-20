@@ -24,12 +24,12 @@
     <ClCompile Include="cpu.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="machine.c">
+    <ClCompile Include="spaceInvadersMachine.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="machine.h">
+    <ClInclude Include="spaceInvadersMachine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

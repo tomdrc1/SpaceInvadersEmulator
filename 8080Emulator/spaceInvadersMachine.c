@@ -1,10 +1,10 @@
-#include "machine.h"
+#include "spaceInvadersMachine.h"
 
 void startEmulation(spaceInvaderMachine* machine)
 {
 	machine->state = (State8080*)malloc(sizeof(State8080));
 	int done = 0;
-	setupMachine(machine);
+	initMachine(machine);
 
 	readFileToMemory(machine->state, "SpaceInvaders.h", 0);
 	readFileToMemory(machine->state, "SpaceInvaders.g", 0x800);
@@ -105,7 +105,7 @@ void startEmulation(spaceInvaderMachine* machine)
 	free(machine->state);
 }
 
-void setupState(State8080* state)
+void initState(State8080* state)
 {
 	state->a = 0;
 	state->b = 0;
@@ -133,9 +133,9 @@ void setupState(State8080* state)
 	state->cycles = 0;
 }
 
-void setupMachine(spaceInvaderMachine* machine)
+void initMachine(spaceInvaderMachine* machine)
 {
-	setupState(machine->state);
+	initState(machine->state);
 	machine->shift_offset = 0;
 	machine->xy = 0;
 	machine->which_int = 0x01;
@@ -240,7 +240,7 @@ void draw(spaceInvaderMachine* machine)
 
 	for (i = 0; i < SCREEN_HEIGHT * SCREEN_WIDTH / 8; i++)
 	{
-		byte currentByte = machine->state->memory[0x2400 + i];
+		byte currentByte = machine->state->memory[VRAM_START + i];
 
 		int p = 0;
 		for (p = 7; p >= 0; --p)

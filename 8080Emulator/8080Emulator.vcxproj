@@ -131,11 +131,11 @@
   <ItemGroup>
     <ClCompile Include="cpu.c" />
     <ClCompile Include="cpu.h" />
-    <ClCompile Include="machine.c" />
+    <ClCompile Include="spaceInvadersMachine.c" />
     <ClCompile Include="main.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="machine.h" />
+    <ClInclude Include="spaceInvadersMachine.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

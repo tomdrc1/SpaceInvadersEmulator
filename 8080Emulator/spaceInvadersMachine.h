@@ -9,6 +9,7 @@
 #include <SDL.h>
 
 #define MEMORY_SIZE 0x10000 //16K
+#define VRAM_START 0x2400
 
 #define SCREEN_HEIGHT 256
 #define SCREEN_WIDTH 224
@@ -31,8 +32,8 @@ typedef struct spaceInvaderMachine
 } spaceInvaderMachine;
 
 void startEmulation(spaceInvaderMachine* machine);
-void setupState(State8080* state);
-void setupMachine(spaceInvaderMachine* machine);
+void initState(State8080* state);
+void initMachine(spaceInvaderMachine* machine);
 void readFileToMemory(State8080* state, char* filename, unsigned short offset);
 void machineUpdate(spaceInvaderMachine* machine);
 byte machineIn(spaceInvaderMachine* machine, byte port);
