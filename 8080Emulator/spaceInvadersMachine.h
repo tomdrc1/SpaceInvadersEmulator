@@ -7,6 +7,7 @@
 #include <time.h>
 #include <SDL.h>
 #include "cpu.h"
+#include "audio.h"
 
 #define MEMORY_SIZE 0x10000 //16K
 #define VRAM_START 0x2400
@@ -24,10 +25,13 @@ typedef struct spaceInvaderMachine
 
 	State8080* state;
 	unsigned short xy;
-	byte shift_offset;
+	byte shiftOffset;
 	byte port1;
 	byte port2;
-	byte which_int;
+	byte whichInt;
+	byte lastOutPort3;
+	byte lastOutPort5;
+	int soundsId[9];
 } spaceInvaderMachine;
 
 void startEmulation(spaceInvaderMachine* machine);
@@ -37,5 +41,6 @@ void readFileToMemory(State8080* state, char* filename, unsigned short offset);
 void machineUpdate(spaceInvaderMachine* machine);
 byte machineIn(spaceInvaderMachine* machine, byte port);
 void machineOut(spaceInvaderMachine* machine, byte port, byte value);
+void playSounds(spaceInvaderMachine* machine, byte port, byte value);
 void draw(spaceInvaderMachine* state);
 int Disassemble8080Op(unsigned char* codebuffer, int pc, FILE* f);

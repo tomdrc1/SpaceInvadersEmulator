@@ -103,6 +103,7 @@ void startEmulation(spaceInvaderMachine* machine)
 		}
 	}
 
+	audioQuit();
 	free(machine->state->memory);
 	free(machine->state);
 }
@@ -137,13 +138,26 @@ void initState(State8080* state)
 
 void initMachine(spaceInvaderMachine* machine)
 {
+	audioInit();
 	initState(machine->state);
-	machine->shift_offset = 0;
+	machine->shiftOffset = 0;
 	machine->xy = 0;
-	machine->which_int = 0x01;
+	machine->whichInt = 0x01;
 
 	machine->port1 = 1 << 3;
 	machine->port2 = 0;
+
+	machine->soundsId[0] = loadSound("Sounds\\8.wav"); // ufo sound
+	machine->soundsId[1] = loadSound("Sounds\\1.wav"); // shoot sound
+	machine->soundsId[2] = loadSound("Sounds\\2.wav"); // player die
+	machine->soundsId[3] = loadSound("Sounds\\3.wav"); // alien die
+	machine->soundsId[4] = loadSound("Sounds\\4.wav"); // alien move 1
+	machine->soundsId[5] = loadSound("Sounds\\5.wav"); // alien move 2
+	machine->soundsId[6] = loadSound("Sounds\\6.wav"); // alien move 3
+	machine->soundsId[7] = loadSound("Sounds\\7.wav"); // alien move 4
+	machine->soundsId[8] = loadSound("Sounds\\10.wav"); // ufo hit
+
+	setVolume(15);
 }
 
 void readFileToMemory(State8080* state, char* filename, unsigned short offset)
@@ -192,9 +206,9 @@ void machineUpdate(spaceInvaderMachine* machine)
 
 		if (machine->state->cycles >= (CYCLES_PER_FRAME / 2))
 		{
-			generateInterrupt(machine->state, machine->which_int);
+			generateInterrupt(machine->state, machine->whichInt);
 			machine->state->cycles -= (CYCLES_PER_FRAME / 2);
-			machine->which_int = (machine->which_int == 0x01 ? 0x02 : 0x01);
+			machine->whichInt = (machine->whichInt == 0x01 ? 0x02 : 0x01);
 		}
 	}
 }
@@ -209,7 +223,7 @@ byte machineIn(spaceInvaderMachine* machine, byte port)
 			return machine->port2;
 		case 3:
 			{
-				return ((machine->xy >> (8 - machine->shift_offset)) & 0xFF);
+				return ((machine->xy >> (8 - machine->shiftOffset)) & 0xFF);
 			}
 			break;
 	}
@@ -219,12 +233,75 @@ void machineOut(spaceInvaderMachine* machine, byte port, byte value)
 {
 	switch (port)
 	{
-	case 2:
-		machine->shift_offset = (value & 0x07);
-		break;
-	case 4:
-		machine->xy >>= 8;
-		machine->xy |= (value << 8);
+		case 2:
+			machine->shiftOffset = (value & 0x07);
+			break;
+		case 3:
+			playSounds(machine, port, machine->state->a);
+			break;
+		case 4:
+			machine->xy >>= 8;
+			machine->xy |= (value << 8);
+			break;
+		case 5:
+			playSounds(machine, port, machine->state->a);
+			break;
+	}
+}
+
+void playSounds(spaceInvaderMachine* machine, byte port, byte value)
+{
+	switch (port)
+	{
+		case 3:
+			if (value != machine->lastOutPort3)
+			{
+				if ((value & 0x01) && !(machine->lastOutPort3 & 0x01))
+				{
+					playSound(machine->soundsId[0]);
+				}
+				if ((value & 0x02) && !(machine->lastOutPort3 & 0x02))
+				{
+					playSound(machine->soundsId[1]);
+				}
+				if ((value & 0x04) && !(machine->lastOutPort3 & 0x04))
+				{
+					playSound(machine->soundsId[2]);
+				}
+				if ((value & 0x08) && !(machine->lastOutPort3 & 0x08))
+				{
+					playSound(machine->soundsId[3]);
+				}
+				
+				machine->lastOutPort3 = value;
+			}
+			break;
+		case 5:
+			if (value != machine->lastOutPort5)
+			{
+				if ((value & 0x01) && !(machine->lastOutPort5 & 0x01))
+				{
+					playSound(machine->soundsId[4]);
+				}
+				if ((value & 0x02) && !(machine->lastOutPort5 & 0x02))
+				{
+					playSound(machine->soundsId[5]);
+				}
+				if ((value & 0x04) && !(machine->lastOutPort5 & 0x04))
+				{
+					playSound(machine->soundsId[6]);
+				}
+				if ((value & 0x08) && !(machine->lastOutPort5 & 0x08))
+				{
+					playSound(machine->soundsId[7]);
+				}
+				if ((value & 0x10) && !(machine->lastOutPort5 & 0x10))
+				{
+					playSound(machine->soundsId[8]);
+				}
+				machine->lastOutPort5 = value;
+			}
+			break;
 	}
 }
 

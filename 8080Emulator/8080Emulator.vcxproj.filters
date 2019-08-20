@@ -27,9 +27,15 @@
     <ClCompile Include="spaceInvadersMachine.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="audio.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="spaceInvadersMachine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="audio.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
