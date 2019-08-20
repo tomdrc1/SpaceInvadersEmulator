@@ -3,6 +3,7 @@
 void startEmulation(spaceInvaderMachine* machine)
 {
 	machine->state = (State8080*)malloc(sizeof(State8080));
+
 	int done = 0;
 	initMachine(machine);
 
@@ -101,6 +102,7 @@ void startEmulation(spaceInvaderMachine* machine)
 			draw(machine);
 		}
 	}
+
 	free(machine->state->memory);
 	free(machine->state);
 }

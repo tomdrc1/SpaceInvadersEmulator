@@ -5,8 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include "cpu.h"
 #include <SDL.h>
+#include "cpu.h"
 
 #define MEMORY_SIZE 0x10000 //16K
 #define VRAM_START 0x2400
@@ -18,17 +18,16 @@
 
 typedef struct spaceInvaderMachine
 {
-	State8080* state;
-
-	unsigned short xy;
-	byte shift_offset;
 	SDL_Window* screen;
 	SDL_Renderer* renderer;
 	SDL_Event sdlEvent;
-	byte which_int;
 
+	State8080* state;
+	unsigned short xy;
+	byte shift_offset;
 	byte port1;
 	byte port2;
+	byte which_int;
 } spaceInvaderMachine;
 
 void startEmulation(spaceInvaderMachine* machine);
