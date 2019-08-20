@@ -10,12 +10,13 @@ int main(int argc, char** argv)
 	SDL_Renderer* renderer;
 	SDL_Event event;
 
-	SDL_Init(SDL_INIT_VIDEO);
+	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK);
 
-	SDL_CreateWindowAndRenderer(224, 256, 0, &screen, &renderer);
+	SDL_CreateWindowAndRenderer(SCREEN_WIDTH, SCREEN_HEIGHT, 0, &screen, &renderer);
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
 	SDL_RenderClear(renderer);
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+	SDL_ShowCursor(SDL_DISABLE);
 
 	machine->screen = screen;
 	machine->renderer = renderer;

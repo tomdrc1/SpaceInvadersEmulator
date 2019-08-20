@@ -322,22 +322,20 @@ byte emulate8080Op(State8080* state)
 			state->pc++;
 			break;
 		case 0x27:
+			if ((state->a & 0x0F) > 0x09 || state->cc.ac == 0x01) 
 			{
-				if ((state->a & 0x0F) > 0x09 || state->cc.ac == 0x01) 
-				{
-					state->cc.ac = (((state->a & 0x0F) + (0x06 & 0x0F)) & 0x10) == 0x10;
-					state->a += 0x06;
-				}
-				if (((state->a >> 4) & 0x0F) > 0x09 || state->cc.cy == 0x01)
-				{
-					state->cc.cy = ((((state->a >> 4) & 0x0F) + (0x06 & 0x0F)) & 0x10) == 0x10;
-					state->a = (state->a) + (0x06 << 4);
-				}
-
-				state->cc.z = (0 == state->a);
-				state->cc.p = pairtyCheck(state->a, 8);
-				state->cc.s = (0x80 == (state->a & 0x80));
+				state->cc.ac = (((state->a & 0x0F) + (0x06 & 0x0F)) & 0x10) == 0x10;
+				state->a += 0x06;
 			}
+			if (((state->a >> 4) & 0x0F) > 0x09 || state->cc.cy == 0x01)
+			{
+				state->cc.cy = ((((state->a >> 4) & 0x0F) + (0x06 & 0x0F)) & 0x10) == 0x10;
+				state->a = (state->a) + (0x06 << 4);
+			}
+
+			state->cc.z = (0 == state->a);
+			state->cc.p = pairtyCheck(state->a, 8);
+			state->cc.s = (0x80 == (state->a & 0x80));
 			break;
 		case 0x28:
 			break;
@@ -1400,8 +1398,13 @@ void writeToMemory(State8080* state, unsigned short adr, byte value)
 
 void generateInterrupt(State8080* state, byte interrupt_num)
 {
-	push(state, (state->pc & 0xFF00) >> 8, state->pc & 0x00FF);
+	if (!state->int_enable)
+	{
+		return;
+	}
 
+	push(state, (state->pc & 0xFF00) >> 8, state->pc & 0x00FF);
+	state->cycles += 11;
 	state->pc = 8 * interrupt_num;
 	state->int_enable = 0;
 }

@@ -4,9 +4,7 @@ void startEmulation(spaceInvaderMachine* machine)
 {
 	machine->state = (State8080*)malloc(sizeof(State8080));
 	int done = 0;
-	FILE* logFile = fopen("data.log", "w");
 	setupMachine(machine);
-	//readFileToMemory(state, "test.h", 0);
 
 	readFileToMemory(machine->state, "SpaceInvaders.h", 0);
 	readFileToMemory(machine->state, "SpaceInvaders.g", 0x800);
@@ -17,19 +15,92 @@ void startEmulation(spaceInvaderMachine* machine)
 	
 	while (!done)
 	{
-		if (SDL_PollEvent(&machine->sdlEvent) && machine->sdlEvent.type == SDL_QUIT)
+		if (SDL_PollEvent(&machine->sdlEvent) != 0)
 		{
-			exit(0);
+			if (machine->sdlEvent.type == SDL_QUIT)
+			{
+				done = 1;
+			}
+			else if (machine->sdlEvent.type == SDL_KEYDOWN)
+			{
+				const unsigned int key = machine->sdlEvent.key.keysym.scancode;
+				if (key == SDL_SCANCODE_C)
+				{
+					machine->port1 |= 1 << 0; // coin
+				}
+				else if (key == SDL_SCANCODE_2)
+				{
+					machine->port1 |= 1 << 1; // P2 start button
+				}
+				else if (key == SDL_SCANCODE_RETURN) 
+				{
+					machine->port1 |= 1 << 2; // P1 start button
+				}
+				else if (key == SDL_SCANCODE_SPACE)
+				{
+					machine->port1 |= 1 << 4; // P1 shoot button
+					machine->port2 |= 1 << 4; // P2 shoot button
+				}
+				else if (key == SDL_SCANCODE_LEFT) 
+				{
+					machine->port1 |= 1 << 5; // P1 joystick left
+					machine->port2 |= 1 << 5; // P2 joystick left
+				}
+				else if (key == SDL_SCANCODE_RIGHT)
+				{
+					machine->port1 |= 1 << 6; // P1 joystick right
+					machine->port2 |= 1 << 6; // P2 joystick right
+				}
+				else if (key == SDL_SCANCODE_T) 
+				{
+					machine->port2 |= 1 << 2; // tilt
+				}
+			}
+			else if (machine->sdlEvent.type == SDL_KEYUP)
+			{
+				const unsigned int key = machine->sdlEvent.key.keysym.scancode;
+
+				if (key == SDL_SCANCODE_C)
+				{
+					machine->port1 &= 0b11111110; // coin
+				}
+				else if (key == SDL_SCANCODE_2)
+				{
+					machine->port1 &= 0b11111101; // P2 start button
+				}
+				else if (key == SDL_SCANCODE_RETURN)
+				{
+					machine->port1 &= 0b11111011; // P1 start button
+				}
+				else if (key == SDL_SCANCODE_SPACE)
+				{
+					machine->port1 &= 0b11101111; // P1 shoot button
+					machine->port2 &= 0b11101111; // P2 shoot button
+				}
+				else if (key == SDL_SCANCODE_LEFT) 
+				{
+					machine->port1 &= 0b11011111; // P1 joystick left
+					machine->port2 &= 0b11011111; // P2 joystick left
+				}
+				else if (key == SDL_SCANCODE_RIGHT)
+				{
+					machine->port1 &= 0b10111111; // P1 joystick right
+					machine->port2 &= 0b10111111; // P2 joystick right
+				}
+				else if (key == SDL_SCANCODE_T) 
+				{
+					machine->port2 &= 0b11111011; // tilt
+				}
+			}
 		}
 
-		if (SDL_GetTicks() - timer > (1.f / 60))
+		if (SDL_GetTicks() - timer > (1.f / 60) * 1000)
 		{
 			timer = SDL_GetTicks();
-			machineUpdate(machine, logFile);
+			machineUpdate(machine);
 			draw(machine);
 		}
 	}
-	fclose(logFile);
 	free(machine->state->memory);
 	free(machine->state);
 }
@@ -58,7 +129,7 @@ void setupState(State8080* state)
 	state->cc.pad1 = 1;
 	state->cc.pad2 = 0;
 	state->cc.pad3 = 0;
-	state->int_enable = 1;
+	state->int_enable = 0;
 	state->cycles = 0;
 }
 
@@ -68,6 +139,9 @@ void setupMachine(spaceInvaderMachine* machine)
 	machine->shift_offset = 0;
 	machine->xy = 0;
 	machine->which_int = 0x01;
+
+	machine->port1 = 1 << 3;
+	machine->port2 = 0;
 }
 
 void readFileToMemory(State8080* state, char* filename, unsigned short offset)
@@ -89,7 +163,7 @@ void readFileToMemory(State8080* state, char* filename, unsigned short offset)
 	fclose(f);
 }
 
-void machineUpdate(spaceInvaderMachine* machine, FILE* f)
+void machineUpdate(spaceInvaderMachine* machine)
 {
 	unsigned int cyclesCount = 0;
 
@@ -104,7 +178,7 @@ void machineUpdate(spaceInvaderMachine* machine, FILE* f)
 		if (*instruction == 0xdb) //machine specific handling for IN    
 		{
 			byte port = instruction[1];
-			machine->state->a = machineIn(machine->state, port);
+			machine->state->a = machineIn(machine, port);
 			machine->state->pc++;
 		}
 		else if (*instruction == 0xd3)  //OUT    
@@ -114,20 +188,74 @@ void machineUpdate(spaceInvaderMachine* machine, FILE* f)
 			machine->state->pc++;
 		}
 
-		if (machine->state->cycles >= (CYCLES_PER_FRAME / 2) && machine->state->int_enable)
+		if (machine->state->cycles >= (CYCLES_PER_FRAME / 2))
 		{
 			generateInterrupt(machine->state, machine->which_int);
 			machine->state->cycles -= (CYCLES_PER_FRAME / 2);
 			machine->which_int = (machine->which_int == 0x01 ? 0x02 : 0x01);
-			//draw(machine);
-			//dumpMemory(machine->state);
 		}
-
-		//fprintf(f, "\tpc=%x, sp=%x, a=%d, b=%d, c=%d, d=%d, e=%d, h=%d, l=%d, m=%d, bc=%d, de=%d, hl=%d\n", machine->state->pc, machine->state->sp, machine->state->a, machine->state->b, machine->state->c, machine->state->d, machine->state->e, machine->state->h, machine->state->l, machine->state->memory[(machine->state->h << 8) | machine->state->l], (machine->state->b << 8) | machine->state->c, (machine->state->d << 8) | machine->state->e, (machine->state->h << 8) | machine->state->l);
-		//fprintf(f, "\tz=%d, s=%d, p=%d, cy=%d, ac=%d, int_enabled=%d cycles=%d\n", machine->state->cc.z, machine->state->cc.s, machine->state->cc.p, machine->state->cc.cy, machine->state->cc.ac, machine->state->int_enable, machine->state->cycles);
 	}
+}
 
-	//system("PAUSE");
+byte machineIn(spaceInvaderMachine* machine, byte port)
+{
+	switch (port)
+	{
+		case 1:
+			return machine->port1;
+		case 2:
+			return machine->port2;
+		case 3:
+			{
+				return ((machine->xy >> (8 - machine->shift_offset)) & 0xFF);
+			}
+			break;
+	}
+}
+
+void machineOut(spaceInvaderMachine* machine, byte port, byte value)
+{
+	switch (port)
+	{
+	case 2:
+		machine->shift_offset = (value & 0x07);
+		break;
+	case 4:
+		machine->xy >>= 8;
+		machine->xy |= (value << 8);
+	}
+}
+
+/*
+	This function will draw the current sprites that are in the memory to the screen
+	Input: A pointer to a struct that represents the spcaeInvadersMachine
+*/
+void draw(spaceInvaderMachine* machine)
+{
+	int i = 0;
+	
+	SDL_SetRenderDrawColor(machine->renderer, 0, 0, 0, 0);
+	SDL_RenderClear(machine->renderer);
+	SDL_SetRenderDrawColor(machine->renderer, 255, 255, 255, 255);
+
+	for (i = 0; i < SCREEN_HEIGHT * SCREEN_WIDTH / 8; i++)
+	{
+		byte currentByte = machine->state->memory[0x2400 + i];
+
+		int p = 0;
+		for (p = 7; p >= 0; --p)
+		{
+			if ((currentByte >> p) & 0x01)
+			{
+				unsigned short index = (i * 8) + p;
+				byte x = index % SCREEN_HEIGHT;
+				byte y = index / SCREEN_HEIGHT;
+				SDL_RenderDrawPoint(machine->renderer, y, SCREEN_HEIGHT - x);
+			}
+		}
+	}
+	
+	SDL_RenderPresent(machine->renderer);
 }
 
 int Disassemble8080Op(unsigned char* codebuffer, int pc, FILE* f)
@@ -411,92 +539,4 @@ int Disassemble8080Op(unsigned char* codebuffer, int pc, FILE* f)
 	}
 
 	return opbytes;
-}
-
-byte machineIn(spaceInvaderMachine* machine, byte port)
-{
-	switch (port)
-	{
-		case 0:
-			return 1;
-			break;
-		case 1:
-			return 0;
-			break;
-		case 3:
-			return ((machine->xy >> (8 - machine->shift_offset)) & 0x00FF);
-			break;
-	}
-}
-
-void machineOut(spaceInvaderMachine* machine, byte port, byte value)
-{
-	switch (port)
-	{
-	case 2:
-		machine->shift_offset = (value & 0x07);
-		break;
-	case 4:
-		machine->xy = (machine->xy >> 8) & 0x00FF;
-		machine->xy |= (value << 8);
-	}
-}
-
-/*
-	This function will draw the current sprites that are in the memory to the screen
-	Input: A pointer to a struct that represents the spcaeInvadersMachine
-*/
-void draw(spaceInvaderMachine* machine)
-{
-	int i = 0;
-	
-	SDL_RenderClear(machine->state);
-	for (i = 0; i < 256 * 224 / 8; i++)
-	{
-		byte currentByte = machine->state->memory[0x2400 + i];
-
-		int p = 0;
-		for (p = 7; p >= 0; --p)
-		{
-			int index = (i * 8) + p;
-			int x = index % 256;
-			int y = index / 256;
-
-			if ((currentByte >> p) & 0x01)
-			{
-				SDL_SetRenderDrawColor(machine->renderer, 255, 255, 255, 255);	
-			}
-			else
-			{
-				SDL_SetRenderDrawColor(machine->renderer, 0, 0, 0, 0);
-			}
-			SDL_RenderDrawPoint(machine->renderer, y, 256 - x);
-		}
-	}
-	
-	SDL_RenderPresent(machine->renderer);
-}
-
-void dumpMemory(State8080* state)
-{
-	FILE* f = fopen("log.txt", "w");
-
-	if (!f)
-	{
-		printf("Error opening file!\n");
-		return;
-	}
-
-	int i = 0;
-	for (i = 0; i < MEMORY_SIZE; ++i)
-	{
-		if (i % 16 == 0)
-		{
-			fprintf(f, "\n %x. ", i);
-		}
-
-		fprintf(f, "%3x ", state->memory[i]);
-	}
-
-	fclose(f);
 }
