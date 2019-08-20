@@ -1388,8 +1388,6 @@ void writeToMemory(State8080* state, unsigned short adr, byte value)
 	
 	if (adr >= 0x4000 && adr < 0x6000) 
 	{ 
-		printf("\tpc=%x, sp=%x, a=%x, b=%x, c=%x, d=%x, e=%x, h=%x, l=%x, m=%x, bc=%x, de=%x, hl=%x\n", state->pc - 1, state->sp, state->a, state->b, state->c, state->d, state->e, state->h, state->l, state->memory[(state->h << 8) | state->l], (state->b << 8) | state->c, (state->d << 8) | state->e, (state->h << 8) | state->l);
-		printf("\tz=%d, s=%d, p=%d, cy=%d, ac=%d, int_enabled=%d cycles=%d\n", state->cc.z, state->cc.s, state->cc.p, state->cc.cy, state->cc.ac, state->int_enable, state->cycles);
 		adr -= 0x2000;
 	}
 	
