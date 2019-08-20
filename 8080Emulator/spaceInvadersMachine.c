@@ -7,10 +7,10 @@ void startEmulation(spaceInvaderMachine* machine)
 	int done = 0;
 	initMachine(machine);
 
-	readFileToMemory(machine->state, "SpaceInvaders.h", 0);
-	readFileToMemory(machine->state, "SpaceInvaders.g", 0x800);
-	readFileToMemory(machine->state, "SpaceInvaders.f", 0x1000);
-	readFileToMemory(machine->state, "SpaceInvaders.e", 0x1800);
+	readFileToMemory(machine->state, "Game\\SpaceInvaders.h", 0);
+	readFileToMemory(machine->state, "Game\\SpaceInvaders.g", 0x800);
+	readFileToMemory(machine->state, "Game\\SpaceInvaders.f", 0x1000);
+	readFileToMemory(machine->state, "Game\\SpaceInvaders.e", 0x1800);
 
 	unsigned int timer = SDL_GetTicks();
 	
