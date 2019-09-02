@@ -317,7 +317,7 @@ void draw(spaceInvaderMachine* machine)
 	SDL_RenderClear(machine->renderer);
 	SDL_SetRenderDrawColor(machine->renderer, 255, 255, 255, 255);
 
-	for (i = 0; i < SCREEN_HEIGHT * SCREEN_WIDTH / 8; i++)
+	for (i = 0; i < ORIGINAL_SCREEN_HEIGHT * ORIGINAL_SCREEN_WIDTH / 8; i++)
 	{
 		byte currentByte = machine->state->memory[VRAM_START + i];
 
@@ -327,9 +327,9 @@ void draw(spaceInvaderMachine* machine)
 			if ((currentByte >> p) & 0x01)
 			{
 				unsigned short index = (i * 8) + p;
-				byte x = index % SCREEN_HEIGHT;
-				byte y = index / SCREEN_HEIGHT;
-				SDL_RenderDrawPoint(machine->renderer, y, SCREEN_HEIGHT - x);
+				byte x = index % ORIGINAL_SCREEN_HEIGHT;
+				byte y = index / ORIGINAL_SCREEN_HEIGHT;
+				SDL_RenderDrawPoint(machine->renderer, y * 8, (ORIGINAL_SCREEN_HEIGHT - x) * 4);
 			}
 		}
 	}
