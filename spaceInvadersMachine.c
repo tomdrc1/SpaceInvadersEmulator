@@ -16,6 +16,17 @@ void startEmulation(spaceInvaderMachine* machine)
 	
 	while (!done)
 	{
+
+		if (digitalRead(7) == 0) //We do it reverse
+		{
+			machine->port1 |= 1 << 4; // P1 shoot button
+			machine->port2 |= 1 << 4; // P2 shoot button
+		}
+		else if (digitalRead(7) == 1)
+		{
+			machine->port1 &= 0b11101111; // P1 shoot button
+			machine->port2 &= 0b11101111; // P2 shoot button
+		}
 		if (SDL_PollEvent(&machine->sdlEvent) != 0)
 		{
 			if (machine->sdlEvent.type == SDL_QUIT)
@@ -37,11 +48,7 @@ void startEmulation(spaceInvaderMachine* machine)
 				{
 					machine->port1 |= 1 << 2; // P1 start button
 				}
-				else if (key == SDL_SCANCODE_SPACE)
-				{
-					machine->port1 |= 1 << 4; // P1 shoot button
-					machine->port2 |= 1 << 4; // P2 shoot button
-				}
+//				else if (key == SDL_SCANCODE_SPACE )
 				else if (key == SDL_SCANCODE_LEFT) 
 				{
 					machine->port1 |= 1 << 5; // P1 joystick left
@@ -72,11 +79,6 @@ void startEmulation(spaceInvaderMachine* machine)
 				else if (key == SDL_SCANCODE_RETURN)
 				{
 					machine->port1 &= 0b11111011; // P1 start button
-				}
-				else if (key == SDL_SCANCODE_SPACE)
-				{
-					machine->port1 &= 0b11101111; // P1 shoot button
-					machine->port2 &= 0b11101111; // P2 shoot button
 				}
 				else if (key == SDL_SCANCODE_LEFT) 
 				{
@@ -158,6 +160,14 @@ void initMachine(spaceInvaderMachine* machine)
 	machine->soundsId[8] = loadSound("./Sounds/10.wav"); // ufo hit
 
 	setVolume(15);
+}
+
+/*
+	This function will initiate the pins
+*/
+void initPiPins()
+{
+
 }
 
 void readFileToMemory(State8080* state, char* filename, unsigned short offset)

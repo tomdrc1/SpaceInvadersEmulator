@@ -6,6 +6,7 @@
 #include <string.h>
 #include <time.h>
 #include <SDL2/SDL.h>
+#include <wiringPi.h>
 #include "cpu.h"
 #include "audio.h"
 
@@ -16,6 +17,8 @@
 #define SCREEN_WIDTH 224
 
 #define CYCLES_PER_FRAME 2000000 / 60
+
+#define PLAYER_SHOT_PIN 7
 
 typedef struct spaceInvaderMachine
 {
@@ -37,6 +40,7 @@ typedef struct spaceInvaderMachine
 void startEmulation(spaceInvaderMachine* machine);
 void initState(State8080* state);
 void initMachine(spaceInvaderMachine* machine);
+void initPiPins();
 void readFileToMemory(State8080* state, char* filename, unsigned short offset);
 void machineUpdate(spaceInvaderMachine* machine);
 byte machineIn(spaceInvaderMachine* machine, byte port);
