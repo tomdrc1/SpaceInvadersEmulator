@@ -7,10 +7,10 @@ void startEmulation(spaceInvaderMachine* machine)
 	int done = 0;
 	initMachine(machine);
 
-	readFileToMemory(machine->state, "Game\\SpaceInvaders.h", 0);
-	readFileToMemory(machine->state, "Game\\SpaceInvaders.g", 0x800);
-	readFileToMemory(machine->state, "Game\\SpaceInvaders.f", 0x1000);
-	readFileToMemory(machine->state, "Game\\SpaceInvaders.e", 0x1800);
+	readFileToMemory(machine->state, "./Game/SpaceInvaders.h", 0);
+	readFileToMemory(machine->state, "./Game/SpaceInvaders.g", 0x800);
+	readFileToMemory(machine->state, "./Game/SpaceInvaders.f", 0x1000);
+	readFileToMemory(machine->state, "./Game/SpaceInvaders.e", 0x1800);
 
 	unsigned int timer = SDL_GetTicks();
 	
@@ -147,15 +147,15 @@ void initMachine(spaceInvaderMachine* machine)
 	machine->port1 = 1 << 3;
 	machine->port2 = 0;
 
-	machine->soundsId[0] = loadSound("Sounds\\8.wav"); // ufo sound
-	machine->soundsId[1] = loadSound("Sounds\\1.wav"); // shoot sound
-	machine->soundsId[2] = loadSound("Sounds\\2.wav"); // player die
-	machine->soundsId[3] = loadSound("Sounds\\3.wav"); // alien die
-	machine->soundsId[4] = loadSound("Sounds\\4.wav"); // alien move 1
-	machine->soundsId[5] = loadSound("Sounds\\5.wav"); // alien move 2
-	machine->soundsId[6] = loadSound("Sounds\\6.wav"); // alien move 3
-	machine->soundsId[7] = loadSound("Sounds\\7.wav"); // alien move 4
-	machine->soundsId[8] = loadSound("Sounds\\10.wav"); // ufo hit
+	machine->soundsId[0] = loadSound("./Sounds/8.wav"); // ufo sound
+	machine->soundsId[1] = loadSound("./Sounds/1.wav"); // shoot sound
+	machine->soundsId[2] = loadSound("./Sounds/2.wav"); // player die
+	machine->soundsId[3] = loadSound("./Sounds/3.wav"); // alien die
+	machine->soundsId[4] = loadSound("./Sounds/4.wav"); // alien move 1
+	machine->soundsId[5] = loadSound("./Sounds/5.wav"); // alien move 2
+	machine->soundsId[6] = loadSound("./Sounds/6.wav"); // alien move 3
+	machine->soundsId[7] = loadSound("./Sounds/7.wav"); // alien move 4
+	machine->soundsId[8] = loadSound("./Sounds/10.wav"); // ufo hit
 
 	setVolume(15);
 }

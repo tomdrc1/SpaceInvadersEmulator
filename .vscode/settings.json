@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "spaceinvadersmachine.h": "c",
+        "sdl.h": "c",
+        "audio.h": "c"
+    }
+}

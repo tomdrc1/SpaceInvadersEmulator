@@ -1,4 +1,5 @@
 #pragma once
+#include <stdio.h>
 typedef unsigned char byte;
 
 typedef struct ConditionCodes {
