@@ -6,6 +6,7 @@ void startEmulation(spaceInvaderMachine* machine)
 
 	int done = 0;
 	initMachine(machine);
+	initPiPins();
 
 	readFileToMemory(machine->state, "./Game/SpaceInvaders.h", 0);
 	readFileToMemory(machine->state, "./Game/SpaceInvaders.g", 0x800);
@@ -13,19 +14,55 @@ void startEmulation(spaceInvaderMachine* machine)
 	readFileToMemory(machine->state, "./Game/SpaceInvaders.e", 0x1800);
 
 	unsigned int timer = SDL_GetTicks();
-	
+
 	while (!done)
 	{
 
-		if (digitalRead(7) == 0) //We do it reverse
+		if (digitalRead(PLAYER_SHOT_PIN) == 1)
 		{
 			machine->port1 |= 1 << 4; // P1 shoot button
 			machine->port2 |= 1 << 4; // P2 shoot button
 		}
-		else if (digitalRead(7) == 1)
+		if (digitalRead(PLAYER_LEFT_PIN) == 1)
+		{
+			machine->port1 |= 1 << 5; // P1 joystick left
+			machine->port2 |= 1 << 5; // P2 joystick left
+		}
+		if (digitalRead(PLAYER_RIGHT_PIN) == 1)
+		{
+			machine->port1 |= 1 << 6; // P1 joystick right
+			machine->port2 |= 1 << 6; // P2 joystick right
+		}
+		if (digitalRead(PLAYER_START_PIN) == 1)
+		{
+			machine->port1 |= 1 << 2; // P1 start button
+		}
+		if (digitalRead(START_2PLAYER_PIN) == 1)
+		{
+			machine->port1 |= 1 << 1; // P2 start button
+		}
+		if (digitalRead(PLAYER_SHOT_PIN) == 0)
 		{
 			machine->port1 &= 0b11101111; // P1 shoot button
 			machine->port2 &= 0b11101111; // P2 shoot button
+		}
+		if (digitalRead(PLAYER_LEFT_PIN) == 0)
+		{
+			machine->port1 &= 0b11011111; // P1 joystick left
+			machine->port2 &= 0b11011111; // P2 joystick left
+		}
+		if (digitalRead(PLAYER_RIGHT_PIN) == 0)
+		{
+			machine->port1 &= 0b10111111; // P1 joystick right
+			machine->port2 &= 0b10111111; // P2 joystick right
+		}
+		if (digitalRead(PLAYER_START_PIN) == 0)
+		{
+			machine->port1 &= 0b11111011; // P1 start button
+		}
+		if (digitalRead(START_2PLAYER_PIN) == 0)
+		{
+			machine->port1 &= 0b11111101; // P2 start button
 		}
 		if (SDL_PollEvent(&machine->sdlEvent) != 0)
 		{
@@ -40,26 +77,7 @@ void startEmulation(spaceInvaderMachine* machine)
 				{
 					machine->port1 |= 1 << 0; // coin
 				}
-				else if (key == SDL_SCANCODE_2)
-				{
-					machine->port1 |= 1 << 1; // P2 start button
-				}
-				else if (key == SDL_SCANCODE_RETURN) 
-				{
-					machine->port1 |= 1 << 2; // P1 start button
-				}
-//				else if (key == SDL_SCANCODE_SPACE )
-				else if (key == SDL_SCANCODE_LEFT) 
-				{
-					machine->port1 |= 1 << 5; // P1 joystick left
-					machine->port2 |= 1 << 5; // P2 joystick left
-				}
-				else if (key == SDL_SCANCODE_RIGHT)
-				{
-					machine->port1 |= 1 << 6; // P1 joystick right
-					machine->port2 |= 1 << 6; // P2 joystick right
-				}
-				else if (key == SDL_SCANCODE_T) 
+				else if (key == SDL_SCANCODE_T)
 				{
 					machine->port2 |= 1 << 2; // tilt
 				}
@@ -71,24 +89,6 @@ void startEmulation(spaceInvaderMachine* machine)
 				if (key == SDL_SCANCODE_C)
 				{
 					machine->port1 &= 0b11111110; // coin
-				}
-				else if (key == SDL_SCANCODE_2)
-				{
-					machine->port1 &= 0b11111101; // P2 start button
-				}
-				else if (key == SDL_SCANCODE_RETURN)
-				{
-					machine->port1 &= 0b11111011; // P1 start button
-				}
-				else if (key == SDL_SCANCODE_LEFT) 
-				{
-					machine->port1 &= 0b11011111; // P1 joystick left
-					machine->port2 &= 0b11011111; // P2 joystick left
-				}
-				else if (key == SDL_SCANCODE_RIGHT)
-				{
-					machine->port1 &= 0b10111111; // P1 joystick right
-					machine->port2 &= 0b10111111; // P2 joystick right
 				}
 				else if (key == SDL_SCANCODE_T) 
 				{
@@ -167,7 +167,10 @@ void initMachine(spaceInvaderMachine* machine)
 */
 void initPiPins()
 {
-
+	wiringPiSetup();
+	pinMode(PLAYER_SHOT_PIN, INPUT);
+	pinMode(PLAYER_LEFT_PIN, INPUT);
+	pinMode(PLAYER_RIGHT_PIN, INPUT);
 }
 
 void readFileToMemory(State8080* state, char* filename, unsigned short offset)

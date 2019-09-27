@@ -18,7 +18,11 @@
 
 #define CYCLES_PER_FRAME 2000000 / 60
 
-#define PLAYER_SHOT_PIN 7
+#define PLAYER_SHOT_PIN 15
+#define PLAYER_LEFT_PIN 4
+#define PLAYER_RIGHT_PIN 3
+#define START_2PLAYER_PIN 5
+#define PLAYER_START_PIN 12
 
 typedef struct spaceInvaderMachine
 {
