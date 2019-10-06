@@ -64,6 +64,7 @@ void startEmulation(spaceInvaderMachine* machine)
 		{
 			machine->port1 &= 0b11111101; // P2 start button
 		}
+		
 		if (SDL_PollEvent(&machine->sdlEvent) != 0)
 		{
 			if (machine->sdlEvent.type == SDL_QUIT)
@@ -94,6 +95,10 @@ void startEmulation(spaceInvaderMachine* machine)
 				{
 					machine->port2 &= 0b11111011; // tilt
 				}
+			}
+			else if (machine->sdlEvent.type == SDL_WINDOWEVENT && machine->sdlEvent.window.event == SDL_WINDOWEVENT_RESIZED)
+			{
+				SDL_RenderSetScale(machine->renderer, (float)machine->sdlEvent.window.data1 / SCREEN_WIDTH, (float)machine->sdlEvent.window.data2 / SCREEN_HEIGHT);
 			}
 		}
 

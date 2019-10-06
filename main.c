@@ -27,6 +27,7 @@ void setupMachine(spaceInvaderMachine* machine)
 
 	SDL_CreateWindowAndRenderer(SCREEN_WIDTH, SCREEN_HEIGHT, 0, &screen, &renderer);
 	SDL_ShowCursor(SDL_DISABLE);
+	SDL_SetWindowResizable(screen, SDL_TRUE);
 
 	machine->screen = screen;
 	machine->renderer = renderer;
