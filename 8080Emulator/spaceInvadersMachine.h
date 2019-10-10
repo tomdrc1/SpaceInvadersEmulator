@@ -12,11 +12,8 @@
 #define MEMORY_SIZE 0x10000 //16K
 #define VRAM_START 0x2400
 
-#define ORIGINAL_SCREEN_HEIGHT 256
-#define ORIGINAL_SCREEN_WIDTH 224
-
-#define SCREEN_HEIGHT 1792
-#define SCREEN_WIDTH 1024
+#define SCREEN_HEIGHT 256
+#define SCREEN_WIDTH 224
 
 #define CYCLES_PER_FRAME 2000000 / 60
 
@@ -46,4 +43,3 @@ byte machineIn(spaceInvaderMachine* machine, byte port);
 void machineOut(spaceInvaderMachine* machine, byte port, byte value);
 void playSounds(spaceInvaderMachine* machine, byte port, byte value);
 void draw(spaceInvaderMachine* state);
-int Disassemble8080Op(unsigned char* codebuffer, int pc, FILE* f);

@@ -10,3 +10,5 @@
 /SDL2/docs
 /8080Emulator/data.log
 /8080Emulator/Release
+/8080Emulator/x64/Release
+/x64/Release
