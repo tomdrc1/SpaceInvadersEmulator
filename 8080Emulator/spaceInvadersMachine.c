@@ -313,38 +313,38 @@ void playSounds(spaceInvaderMachine* machine, byte port, byte value)
 	This function will draw the current sprites that are in the memory to the screen
 	Input: A pointer to a struct that represents the spcaeInvadersMachine
 
- the screen is 256 * 224 pixels, and is rotated anti-clockwise.
- these are the overlay dimensions:
- ,_______________________________.
- |WHITE            ^             |
- |                32             |
- |                 v             |
- |-------------------------------|
- |RED              ^             |
- |                32             |
- |                 v             |
- |-------------------------------|
- |WHITE                          |
- |         < 224 >               |
- |                               |
- |                 ^             |
- |                120            |
- |                 v             |
- |                               |
- |                               |
- |                               |
- |-------------------------------|
- |GREEN                          |
- | ^                  ^          |
- |56        ^        56          |
- | v       72         v          |
- |____      v      ______________|
- |  ^  |          | ^            |
- |<16> |  < 118 > |16   < 122 >  |
- |  v  |          | v            |
- |WHITE|          |         WHITE|
- `-------------------------------'
- Beacuse the sapce invaders is rotated, we act like the x is our Y when in reality the screen in just rotated 90 degress to the right
+	the screen is 256 * 224 pixels, and is rotated anti-clockwise.
+	these are the overlay dimensions:
+	,_______________________________.
+	|WHITE            ^             |
+	|                32             |
+	|                 v             |
+	|-------------------------------|
+	|RED              ^             |
+	|                32             |
+	|                 v             |
+	|-------------------------------|
+	|WHITE                          |
+	|         < 224 >               |
+	|                               |
+	|                 ^             |
+	|                120            |
+	|                 v             |
+	|                               |
+	|                               |
+	|                               |
+	|-------------------------------|
+	|GREEN                          |
+	| ^                  ^          |
+	|56        ^        56          |
+	| v       72         v          |
+	|____      v      ______________|
+	|  ^  |          | ^            |
+	|<16> |  < 118 > |16   < 122 >  |
+	|  v  |          | v            |
+	|WHITE|          |         WHITE|
+	`-------------------------------'
+	Beacuse the sapce invaders is rotated, we act like the x is our Y when in reality the screen in just rotated 90 degress to the right
 */
 void draw(spaceInvaderMachine* machine)
 {
