@@ -51,4 +51,3 @@ byte machineIn(spaceInvaderMachine* machine, byte port);
 void machineOut(spaceInvaderMachine* machine, byte port, byte value);
 void playSounds(spaceInvaderMachine* machine, byte port, byte value);
 void draw(spaceInvaderMachine* state);
-int Disassemble8080Op(unsigned char* codebuffer, int pc, FILE* f);
