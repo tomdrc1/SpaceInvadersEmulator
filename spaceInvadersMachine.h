@@ -23,6 +23,7 @@
 #define PLAYER_RIGHT_PIN 3
 #define START_2PLAYER_PIN 5
 #define PLAYER_START_PIN 12
+#define COIN_INSERT_PIN 13
 
 typedef struct spaceInvaderMachine
 {

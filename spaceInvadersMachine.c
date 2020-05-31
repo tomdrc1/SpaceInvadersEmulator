@@ -41,6 +41,10 @@ void startEmulation(spaceInvaderMachine* machine)
 		{
 			machine->port1 |= 1 << 1; // P2 start button
 		}
+		if (digitalRead(COIN_INSERT_PIN) == 0) // Coin insert, inverted (0 when active)
+		{
+			machine->port1 |= 1 << 0;
+		}
 		if (digitalRead(PLAYER_SHOT_PIN) == 0)
 		{
 			machine->port1 &= 0b11101111; // P1 shoot button
@@ -64,7 +68,10 @@ void startEmulation(spaceInvaderMachine* machine)
 		{
 			machine->port1 &= 0b11111101; // P2 start button
 		}
-		
+		if (digitalRead(COIN_INSERT_PIN) == 1)
+		{
+			machine->port1 &= 0b11111110;
+		}
 		if (SDL_PollEvent(&machine->sdlEvent) != 0)
 		{
 			if (machine->sdlEvent.type == SDL_QUIT)
@@ -74,11 +81,7 @@ void startEmulation(spaceInvaderMachine* machine)
 			else if (machine->sdlEvent.type == SDL_KEYDOWN)
 			{
 				const unsigned int key = machine->sdlEvent.key.keysym.scancode;
-				if (key == SDL_SCANCODE_C)
-				{
-					machine->port1 |= 1 << 0; // coin
-				}
-				else if (key == SDL_SCANCODE_T)
+				if (key == SDL_SCANCODE_T)
 				{
 					machine->port2 |= 1 << 2; // tilt
 				}
@@ -87,11 +90,7 @@ void startEmulation(spaceInvaderMachine* machine)
 			{
 				const unsigned int key = machine->sdlEvent.key.keysym.scancode;
 
-				if (key == SDL_SCANCODE_C)
-				{
-					machine->port1 &= 0b11111110; // coin
-				}
-				else if (key == SDL_SCANCODE_T) 
+				if (key == SDL_SCANCODE_T) 
 				{
 					machine->port2 &= 0b11111011; // tilt
 				}
@@ -176,6 +175,7 @@ void initPiPins()
 	pinMode(PLAYER_SHOT_PIN, INPUT);
 	pinMode(PLAYER_LEFT_PIN, INPUT);
 	pinMode(PLAYER_RIGHT_PIN, INPUT);
+	pinMode(COIN_INSERT_PIN, INPUT);
 }
 
 void readFileToMemory(State8080* state, char* filename, unsigned short offset)
