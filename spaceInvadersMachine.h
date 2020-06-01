@@ -10,6 +10,8 @@
 #include "cpu.h"
 #include "audio.h"
 
+#define BLANK_MEMORY 0
+
 #define MEMORY_SIZE 0x10000 //16K
 #define VRAM_START 0x2400
 

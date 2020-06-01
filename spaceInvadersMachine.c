@@ -3,7 +3,7 @@
 void startEmulation(spaceInvaderMachine* machine)
 {
 	machine->state = (State8080*)malloc(sizeof(State8080));
-
+	int isFullScreen = 0;
 	int done = 0;
 	initMachine(machine);
 	initPiPins();
@@ -85,6 +85,20 @@ void startEmulation(spaceInvaderMachine* machine)
 				{
 					machine->port2 |= 1 << 2; // tilt
 				}
+
+				if (key == SDL_SCANCODE_F)
+				{
+					if (!isFullScreen)
+					{
+						SDL_SetWindowFullscreen(machine->screen, SDL_WINDOW_FULLSCREEN_DESKTOP);
+						isFullScreen = 1;
+					}
+					else
+					{
+						SDL_SetWindowFullscreen(machine->screen, 0);
+						isFullScreen = 0;
+					}
+				}
 			}
 			else if (machine->sdlEvent.type == SDL_KEYUP)
 			{
@@ -128,7 +142,7 @@ void initState(State8080* state)
 	state->pc = 0;
 
 	state->memory = (byte*)malloc(MEMORY_SIZE);
-	memset(state->memory, NULL, MEMORY_SIZE);
+	memset(state->memory, BLANK_MEMORY, MEMORY_SIZE);
 
 	state->cc.z = 0;
 	state->cc.s = 0;
@@ -175,6 +189,8 @@ void initPiPins()
 	pinMode(PLAYER_SHOT_PIN, INPUT);
 	pinMode(PLAYER_LEFT_PIN, INPUT);
 	pinMode(PLAYER_RIGHT_PIN, INPUT);
+	pinMode(START_2PLAYER_PIN, INPUT);
+	pinMode(PLAYER_START_PIN, INPUT);
 	pinMode(COIN_INSERT_PIN, INPUT);
 }
 
