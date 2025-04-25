@@ -2,16 +2,6 @@
 
 A simple emulator for the classic **1978 Space Invaders** arcade game, written in C. This project simulates the original game's hardware, including CPU emulation, memory mapping, and audio handling.
 
-## Project Structure
-.
-├── audio.c                  # Handles audio playback and sound effects
-├── audio.h
-├── cpu.c                    # Emulates the Intel 8080 CPU instructions and state
-├── cpu.h
-├── main.c
-├── spaceInvadersMachine.c  # Simulates the original hardware layout (memory, IO, etc.)
-├── spaceInvadersMachine.h
-
 ## Features
 
 - Full and accurate emulation of the Intel 8080 CPU.
